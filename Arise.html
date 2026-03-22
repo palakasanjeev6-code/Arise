@@ -1,8 +1,3 @@
-bash
-
-cat /home/claude/arise_v3.html
-Output
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,32 +10,336 @@ Output
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#03030a;--bg2:#06060f;--bg3:#09091a;--panel:#070716;--panel2:#0c0c22;
+  --bg:#02020a;--bg2:#04040e;--bg3:#06061a;
+  --panel:rgba(6,6,18,0.92);--panel2:rgba(10,10,24,0.95);
   --border:rgba(110,80,255,0.1);--border2:rgba(110,80,255,0.22);--border3:rgba(110,80,255,0.4);
   --purple:#6e50ff;--purple2:#8e72ff;--purple3:#b8a8ff;
-  --gold:#c4a035;--gold2:#e0bc55;--gold3:#f0d880;
+  --gold:#c4a035;--gold2:#e0bc55;
   --red:#ff3344;--red2:#ff5566;--green:#33ffaa;--cyan:#33ccff;
+  --slblue:rgba(0,180,255,0.95);--slborder:rgba(0,150,255,0.65);--slbg:rgba(0,60,180,0.14);
   --text:#eeeaff;--text2:#9488cc;--text3:#443870;--text4:#261e48;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 html,body{width:100%;min-height:100vh;background:var(--bg);font-family:'Rajdhani',sans-serif;color:var(--text);overflow-x:hidden}
 input,button,select,textarea{font-family:'Rajdhani',sans-serif}
 
-/* PARTICLES */
-#particles{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.3}
+/* EDGE GLOW */
+.edge-glow{position:fixed;inset:0;pointer-events:none;z-index:1}
+.edge-glow::before{content:'';position:fixed;top:0;left:0;bottom:0;width:22px;background:linear-gradient(90deg,rgba(0,100,255,0.12),transparent)}
+.edge-glow::after{content:'';position:fixed;top:0;right:0;bottom:0;width:22px;background:linear-gradient(270deg,rgba(0,100,255,0.12),transparent)}
 
 /* SCREENS */
-.screen{display:none;flex-direction:column;min-height:100vh;position:relative;z-index:1}
+.screen{display:none;flex-direction:column;min-height:100vh;position:relative;z-index:2}
 .screen.active{display:flex}
 .scroll{flex:1;overflow-y:auto;padding-bottom:100px;-webkit-overflow-scrolling:touch}
 .scroll::-webkit-scrollbar{display:none}
 
 /* NAVBAR */
-.navbar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;justify-content:space-around;align-items:center;padding:8px 0 22px;background:linear-gradient(to top,rgba(3,3,10,0.99) 70%,transparent);border-top:0.5px solid var(--border2)}
+.navbar{position:fixed;bottom:0;left:0;right:0;z-index:300;display:flex;justify-content:space-around;align-items:center;padding:8px 0 22px;background:linear-gradient(to top,rgba(2,2,10,0.99) 70%,transparent);border-top:0.5px solid var(--border2)}
 .nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;color:var(--text3);transition:color 0.2s;padding:5px 8px;min-width:44px}
 .nav-btn.active{color:var(--purple2)}
 .nav-btn svg{width:20px;height:20px;stroke-width:1.5;flex-shrink:0}
 .nav-label{font-size:7px;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+
+/* GLITCH OVERLAY */
+.glitch-ov{position:fixed;inset:0;z-index:500;pointer-events:none;opacity:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,20,0.15)}
+.glitch-jp{font-family:'Noto Sans JP',sans-serif;font-size:26px;color:#00eeff;text-shadow:0 0 30px rgba(0,230,255,1);letter-spacing:3px;text-align:center;padding:0 20px}
+
+/* TOAST */
+.toast{position:fixed;top:52px;left:14px;right:14px;z-index:1000;background:linear-gradient(135deg,rgba(8,4,20,0.97),rgba(4,2,12,0.97));border:1px solid var(--border2);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:12px;transform:translateY(-16px);opacity:0;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);pointer-events:none;backdrop-filter:blur(10px)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-jp{font-family:'Noto Sans JP',sans-serif;font-size:18px;color:var(--purple3);flex-shrink:0}
+.toast-title{font-size:13px;color:var(--text);font-weight:600;line-height:1.3}
+.toast-sub{font-size:11px;color:var(--text3);margin-top:1px}
+
+/* LEVEL UP */
+.lvlup{position:fixed;inset:0;z-index:800;background:rgba(2,2,10,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s}
+.lvlup.show{opacity:1;pointer-events:all}
+.lvlup-rings{position:relative;width:190px;height:190px;display:flex;align-items:center;justify-content:center;margin-bottom:28px}
+.lring{position:absolute;border-radius:50%;border:1px solid var(--purple2);animation:ringx 2.4s infinite}
+.lring:nth-child(1){width:90px;height:90px;animation-delay:0s}
+.lring:nth-child(2){width:140px;height:140px;animation-delay:0.5s}
+.lring:nth-child(3){width:190px;height:190px;animation-delay:1s}
+@keyframes ringx{0%{opacity:0.9;transform:scale(0.7)}100%{opacity:0;transform:scale(1.3)}}
+.lring-kanji{font-family:'Noto Sans JP',sans-serif;font-size:30px;color:var(--purple3);position:absolute}
+.lvlup-title{font-family:'Cinzel',serif;font-size:26px;color:var(--gold2);letter-spacing:4px;margin-bottom:8px}
+.lvlup-sub{font-size:13px;color:var(--text2);letter-spacing:1px;margin-bottom:32px;text-align:center;padding:0 28px;line-height:1.6}
+.lvlup-close{padding:13px 36px;border-radius:12px;border:1px solid var(--purple2);background:rgba(110,80,255,0.08);color:var(--purple3);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
+
+/* DUNGEON CLEARED */
+.dungeon-cleared{position:fixed;inset:0;z-index:850;background:rgba(2,2,10,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.5s;padding:32px}
+.dungeon-cleared.show{opacity:1;pointer-events:all}
+.dc-jp{font-family:'Noto Sans JP',sans-serif;font-size:36px;color:var(--purple3);margin-bottom:6px;text-align:center;text-shadow:0 0 30px rgba(110,80,255,0.6)}
+.dc-rom{font-size:11px;color:var(--text3);letter-spacing:4px;margin-bottom:28px;text-align:center}
+.dc-title{font-family:'Cinzel',serif;font-size:28px;color:var(--gold2);letter-spacing:4px;margin-bottom:8px;text-align:center}
+.dc-xp{font-family:'Cinzel',serif;font-size:20px;color:var(--gold2);margin-bottom:6px}
+.dc-sub{font-size:13px;color:var(--text2);margin-bottom:32px;text-align:center;line-height:1.6}
+.dc-close{padding:13px 36px;border-radius:12px;border:1px solid var(--gold2);background:rgba(196,160,53,0.08);color:var(--gold2);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
+
+/* MORNING FEELING */
+.morning-feel{position:fixed;inset:0;z-index:700;background:rgba(2,2,10,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;opacity:0;pointer-events:none;transition:opacity 0.4s}
+.morning-feel.show{opacity:1;pointer-events:all}
+.mf-kanji{font-family:'Noto Sans JP',sans-serif;font-size:48px;color:var(--purple3);text-align:center;margin-bottom:6px;text-shadow:0 0 30px rgba(110,80,255,0.5)}
+.mf-title{font-family:'Cinzel',serif;font-size:16px;color:var(--text);letter-spacing:2px;margin-bottom:6px;text-align:center}
+.mf-date{font-size:11px;color:var(--text3);letter-spacing:2px;margin-bottom:28px;text-align:center}
+.mf-options{display:flex;gap:10px;width:100%;max-width:320px;margin-bottom:20px}
+.mf-btn{flex:1;padding:16px 8px;border-radius:14px;border:1px solid var(--border2);background:rgba(6,6,18,0.9);display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all 0.2s}
+.mf-btn:active{transform:scale(0.95)}
+.mf-btn.fresh{border-color:rgba(51,255,170,0.3)}
+.mf-btn.tired{border-color:rgba(110,80,255,0.3)}
+.mf-btn.exhausted{border-color:rgba(255,100,50,0.3)}
+.mf-btn-icon{font-size:26px}
+.mf-btn-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.mf-btn.fresh .mf-btn-label{color:var(--green)}
+.mf-btn.tired .mf-btn-label{color:var(--purple2)}
+.mf-btn.exhausted .mf-btn-label{color:rgba(255,140,80,0.85)}
+.mf-btn-sub{font-size:9px;color:var(--text3);text-align:center;line-height:1.3}
+
+/* EXHAUSTED REASON */
+.exh-popup{position:fixed;inset:0;z-index:720;background:rgba(2,2,10,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.exh-popup.show{opacity:1;pointer-events:all}
+.exh-title{font-family:'Cinzel',serif;font-size:16px;color:var(--text);letter-spacing:2px;margin-bottom:6px;text-align:center}
+.exh-sub{font-size:11px;color:var(--text3);text-align:center;margin-bottom:22px;line-height:1.6}
+.exh-options{display:flex;flex-direction:column;gap:9px;width:100%;max-width:320px}
+.exh-opt{padding:13px 16px;border-radius:13px;border:1px solid var(--border2);background:rgba(6,6,18,0.9);display:flex;align-items:center;gap:13px;cursor:pointer;transition:all 0.2s}
+.exh-opt:active{transform:scale(0.97)}
+.exh-opt-icon{font-size:20px;flex-shrink:0}
+.exh-opt-title{font-size:13px;font-weight:700;color:var(--text)}
+.exh-opt-sub{font-size:10px;color:var(--text3);margin-top:1px}
+
+/* TIMER */
+.timer-ov{position:fixed;inset:0;z-index:600;background:var(--bg);display:flex;flex-direction:column;align-items:center;padding:56px 22px 24px;opacity:0;pointer-events:none;transition:opacity 0.3s;overflow-y:auto}
+.timer-ov.show{opacity:1;pointer-events:all}
+.timer-back{position:absolute;top:50px;left:18px;background:none;border:none;color:var(--text3);font-size:12px;letter-spacing:2px;cursor:pointer}
+.timer-qname{font-family:'Cinzel',serif;font-size:20px;color:var(--text);text-align:center;letter-spacing:2px;margin-bottom:5px}
+.timer-reps{font-size:13px;color:var(--purple2);text-align:center;margin-bottom:6px}
+.timer-stat{font-size:11px;color:var(--text3);text-align:center;margin-bottom:20px;letter-spacing:1px}
+.timer-ring{position:relative;width:160px;height:160px;margin:0 auto 20px;flex-shrink:0}
+.timer-svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.t-bg{fill:none;stroke:rgba(110,80,255,0.07);stroke-width:6}
+.t-prog{fill:none;stroke:var(--purple2);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.timer-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.timer-digits{font-family:'Cinzel',serif;font-size:40px;color:var(--purple3);line-height:1}
+.timer-slbl{font-size:9px;color:var(--text3);letter-spacing:3px;margin-top:3px}
+.inst-box{width:100%;background:rgba(6,6,18,0.9);border:0.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px}
+.inst-ttl{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;font-weight:700}
+.inst-step{font-size:12px;color:var(--text2);line-height:1.9;display:flex;gap:8px;margin-bottom:1px}
+.inst-n{color:var(--purple2);font-weight:700;flex-shrink:0;min-width:16px}
+.mistake-box{width:100%;background:rgba(255,51,68,0.04);border:0.5px solid rgba(255,51,68,0.15);border-radius:10px;padding:11px 13px;margin-bottom:14px}
+.mistake-ttl{font-size:9px;color:rgba(255,51,68,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-weight:700}
+.mistake-txt{font-size:12px;color:var(--text2);line-height:1.6}
+.begin-btn{width:100%;padding:14px;border-radius:14px;border:1px solid var(--green);background:rgba(51,255,170,0.06);color:var(--green);cursor:pointer;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;flex-shrink:0}
+.timer-done-btn{width:100%;padding:14px;border-radius:14px;border:1px solid var(--purple2);background:linear-gradient(135deg,rgba(26,16,64,0.9),rgba(13,8,32,0.9));color:var(--purple3);cursor:pointer;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;opacity:0.3;transition:opacity 0.4s;flex-shrink:0}
+.timer-done-btn.ready{opacity:1}
+
+/* LOCKDOWN */
+.lockdown{position:fixed;inset:0;z-index:950;background:#010006;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;opacity:0;pointer-events:none;transition:opacity 0.5s}
+.lockdown.show{opacity:1;pointer-events:all}
+.ld-scan{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);animation:ldscan 3s infinite linear}
+@keyframes ldscan{0%{transform:translateY(0)}100%{transform:translateY(100vh)}}
+.ld-kanji{font-family:'Noto Sans JP',sans-serif;font-size:50px;color:var(--red);text-align:center;margin-bottom:6px;text-shadow:0 0 40px rgba(255,51,68,0.5)}
+.ld-rom{font-size:10px;color:rgba(255,51,68,0.45);letter-spacing:5px;text-align:center;margin-bottom:24px}
+.ld-title{font-family:'Cinzel',serif;font-size:20px;color:var(--red);text-align:center;letter-spacing:3px;margin-bottom:12px}
+.ld-body{font-size:12px;color:var(--text2);text-align:center;line-height:1.9;margin-bottom:28px;max-width:290px}
+.ld-msg{background:rgba(255,51,68,0.05);border:1px solid rgba(255,51,68,0.18);border-radius:12px;padding:14px 18px;width:100%;font-size:12px;color:rgba(255,51,68,0.75);line-height:1.9;margin-bottom:16px;text-align:center}
+.ld-btn{width:100%;padding:15px;border-radius:14px;border:1px solid var(--red);background:rgba(255,51,68,0.06);color:var(--red);cursor:pointer;font-size:15px;font-weight:700;letter-spacing:3px}
+
+/* HEADER */
+.top-hdr{padding:52px 18px 0;display:flex;justify-content:space-between;align-items:flex-start}
+.app-wordmark{font-family:'Cinzel',serif;font-size:26px;font-weight:900;letter-spacing:6px;color:var(--purple3);text-shadow:0 0 30px rgba(110,80,255,0.3);line-height:1}
+.app-sub{font-family:'Noto Sans JP',sans-serif;font-size:9px;color:var(--text3);letter-spacing:3px;margin-top:3px}
+.hdr-menu{width:36px;height:36px;border-radius:10px;background:rgba(6,6,18,0.9);border:0.5px solid var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex-shrink:0}
+.hdr-menu-line{width:16px;height:1.5px;background:var(--text3);border-radius:2px}
+
+/* 24HR TIMER SECTION */
+.day-timer-section{margin:16px 16px 0;background:rgba(6,6,18,0.85);border:0.5px solid var(--border2);border-radius:16px;padding:18px 20px;backdrop-filter:blur(8px)}
+.dt-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.dt-day{font-family:'Cinzel',serif;font-size:28px;color:var(--gold2);font-weight:900;line-height:1}
+.dt-day-label{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.dt-right{text-align:right}
+.dt-rank{font-family:'Cinzel',serif;font-size:13px;color:var(--purple3);letter-spacing:2px}
+.dt-week{font-size:9px;color:var(--text3);letter-spacing:2px;margin-top:2px}
+.dt-time{font-family:'Cinzel',serif;font-size:36px;color:var(--text);font-weight:900;letter-spacing:2px;text-align:center;margin-bottom:6px;text-shadow:0 0 20px rgba(110,80,255,0.2)}
+.dt-bar-wrap{height:4px;background:rgba(110,80,255,0.07);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.dt-bar{height:100%;border-radius:2px;transition:width 1s linear,background 2s}
+.dt-status{font-size:10px;color:var(--text3);letter-spacing:2px;text-align:center;text-transform:uppercase}
+
+/* DAY CHOICE */
+.day-choices{display:flex;gap:8px;margin:10px 16px 0}
+.day-btn{flex:1;padding:12px 6px;border-radius:13px;border:1px solid var(--border2);background:rgba(6,6,18,0.85);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all 0.2s}
+.day-btn:active{transform:scale(0.96)}
+.day-btn.quest-btn{border-color:rgba(110,80,255,0.35)}
+.day-btn.work-btn{border-color:rgba(196,160,53,0.35)}
+.day-btn.exh-btn{border-color:rgba(255,100,50,0.25)}
+.day-btn-icon{font-size:20px}
+.day-btn-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.day-btn.quest-btn .day-btn-label{color:var(--purple3)}
+.day-btn.work-btn .day-btn-label{color:var(--gold2)}
+.day-btn.exh-btn .day-btn-label{color:rgba(255,140,80,0.8)}
+.day-btn-sub{font-size:8px;color:var(--text3);text-align:center;line-height:1.3}
+
+/* ACTIVE STATE */
+.active-state-card{margin:10px 16px 0;border-radius:16px;padding:15px;backdrop-filter:blur(8px)}
+.active-state-card.quest-active{background:rgba(6,6,18,0.88);border:1px solid var(--border2)}
+.active-state-card.work-active{background:rgba(14,10,2,0.88);border:1px solid rgba(196,160,53,0.2)}
+.active-state-card.exh-active{background:rgba(14,6,2,0.88);border:1px solid rgba(255,100,50,0.18)}
+.asc-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.quest-active .asc-label{color:var(--purple2)}
+.work-active .asc-label{color:var(--gold)}
+.exh-active .asc-label{color:rgba(255,140,80,0.7)}
+.asc-jp{font-family:'Noto Sans JP',sans-serif;font-size:11px;color:var(--text3);margin-bottom:12px}
+.asc-btn{padding:11px 18px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.quest-active .asc-btn{background:rgba(110,80,255,0.14);border:1px solid var(--purple2);color:var(--purple3)}
+.work-active .asc-btn{background:rgba(196,160,53,0.08);border:1px solid var(--gold);color:var(--gold2)}
+
+/* LICENSE CARD */
+.license-card{margin:12px 16px 0;border-radius:18px;padding:16px;position:relative;overflow:hidden;cursor:pointer;backdrop-filter:blur(8px)}
+.license-card.e-rank{background:linear-gradient(135deg,rgba(8,8,22,0.92),rgba(4,4,14,0.92));border:1px solid rgba(160,160,180,0.25)}
+.license-card.d-rank{background:linear-gradient(135deg,rgba(14,9,4,0.92),rgba(8,5,2,0.92));border:1px solid rgba(160,100,40,0.35)}
+.license-card.c-rank{background:linear-gradient(135deg,rgba(4,8,18,0.92),rgba(2,4,12,0.92));border:1px solid rgba(40,100,200,0.35)}
+.license-card.b-rank{background:linear-gradient(135deg,rgba(14,12,2,0.92),rgba(8,7,2,0.92));border:1px solid rgba(200,170,40,0.4)}
+.license-card.a-rank{background:linear-gradient(135deg,rgba(12,4,20,0.92),rgba(6,2,14,0.92));border:1px solid rgba(140,60,220,0.4)}
+.license-card.s-rank{background:linear-gradient(135deg,rgba(4,2,16,0.92),rgba(2,1,10,0.92));border:1px solid rgba(0,160,255,0.45)}
+.lc-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.lc-photo{width:54px;height:54px;border-radius:12px;background:rgba(6,6,18,0.9);border:1px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;cursor:pointer}
+.lc-photo img{width:100%;height:100%;object-fit:cover}
+.lc-info{flex:1}
+.lc-name{font-family:'Cinzel',serif;font-size:19px;font-weight:700;color:var(--text);line-height:1.1}
+.lc-title{font-size:11px;color:var(--purple2);letter-spacing:1px;margin-top:3px}
+.lc-dob{font-size:10px;color:var(--text3);margin-top:2px}
+.lc-level-wrap{flex-shrink:0;text-align:center}
+.lc-lvl-label{font-size:7px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+.lc-lvl-num{font-family:'Cinzel',serif;font-size:26px;color:var(--purple3);font-weight:900;line-height:1}
+.lc-rank-row{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
+.lc-rank{font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:2px}
+.e-rank .lc-rank{color:rgba(160,160,180,0.8)}.d-rank .lc-rank{color:rgba(180,120,50,0.9)}.c-rank .lc-rank{color:rgba(60,130,240,0.9)}.b-rank .lc-rank{color:var(--gold2)}.a-rank .lc-rank{color:rgba(180,100,255,0.95)}.s-rank .lc-rank{color:rgba(0,200,255,0.98)}
+.lc-days{font-size:10px;color:var(--text3)}
+.xp-row{margin-top:10px}
+.xp-hdr{display:flex;justify-content:space-between;margin-bottom:4px}
+.xp-lbl{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+.xp-val{font-size:10px;color:var(--purple2);font-weight:600}
+.xp-track{height:5px;background:rgba(110,80,255,0.07);border-radius:3px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple3));border-radius:3px;transition:width 1s}
+
+/* STATUS WINDOW */
+.status-window{margin:12px 16px 0;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:16px;padding:15px;backdrop-filter:blur(8px)}
+.sw-title{font-size:9px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:11px;text-align:center}
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sw-stat{background:rgba(3,3,12,0.8);border:0.5px solid var(--border);border-radius:12px;padding:10px 8px;display:flex;align-items:center;gap:8px;position:relative;overflow:hidden}
+.sw-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;border-radius:12px 12px 0 0}
+.sw-stat.str::before{background:linear-gradient(90deg,transparent,rgba(255,120,120,0.7),transparent)}
+.sw-stat.agi::before{background:linear-gradient(90deg,transparent,rgba(51,204,255,0.7),transparent)}
+.sw-stat.vit::before{background:linear-gradient(90deg,transparent,rgba(51,255,170,0.7),transparent)}
+.sw-stat.comb::before{background:linear-gradient(90deg,transparent,rgba(224,188,85,0.7),transparent)}
+.sw-icon{font-size:17px;flex-shrink:0}
+.sw-right{flex:1}
+.sw-name{font-size:7px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:700}
+.sw-val{font-family:'Cinzel',serif;font-size:20px;font-weight:900;line-height:1.1}
+.sw-stat.str .sw-val{color:#ff9999}.sw-stat.agi .sw-val{color:var(--cyan)}.sw-stat.vit .sw-val{color:var(--green)}.sw-stat.comb .sw-val{color:var(--gold2)}
+.sw-bar{height:2px;background:rgba(255,255,255,0.04);border-radius:1px;margin-top:4px;overflow:hidden}
+.sw-fill{height:100%;border-radius:1px;transition:width 0.8s}
+.sw-stat.str .sw-fill{background:#ff9999}.sw-stat.agi .sw-fill{background:var(--cyan)}.sw-stat.vit .sw-fill{background:var(--green)}.sw-stat.comb .sw-fill{background:var(--gold2)}
+
+/* SECTION HEADER */
+.sec-hdr{display:flex;align-items:center;gap:10px;padding:16px 18px 10px}
+.sec-line{flex:1;height:0.5px;background:var(--border)}
+.sec-title{font-size:8px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;font-weight:700;white-space:nowrap}
+
+/* WATER */
+.water-card{margin:0 16px 8px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:13px;padding:12px 14px;backdrop-filter:blur(8px)}
+.wt-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.wt-title{font-size:9px;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;font-weight:700}
+.wt-val{font-family:'Cinzel',serif;font-size:14px;color:var(--cyan)}
+.wt-track{height:4px;background:rgba(51,204,255,0.07);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.wt-fill{height:100%;background:linear-gradient(90deg,rgba(51,204,255,0.5),var(--cyan));border-radius:2px;transition:width 0.5s}
+.wt-btns{display:flex;gap:5px}
+.wt-btn{flex:1;padding:7px 3px;border-radius:7px;border:0.5px solid rgba(51,204,255,0.18);background:rgba(51,204,255,0.04);color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer}
+
+/* STREAK */
+.streak-card{margin:0 16px 8px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:14px;padding:14px;backdrop-filter:blur(8px)}
+.streak-days{display:flex;justify-content:space-between;margin-bottom:11px}
+.sday{width:33px;height:33px;border-radius:50%;background:rgba(3,3,12,0.8);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text3);font-weight:700;text-transform:uppercase}
+.sday.done{background:rgba(110,80,255,0.14);border-color:var(--purple2);color:var(--purple3)}
+.sday.today{background:var(--purple);border-color:var(--purple3);color:white;box-shadow:0 0 10px rgba(110,80,255,0.4)}
+.streak-footer{display:flex;justify-content:space-between;align-items:flex-end}
+.streak-num{font-family:'Cinzel',serif;font-size:22px;color:var(--gold2);line-height:1}
+.streak-lbl{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.streak-msg{font-size:11px;color:var(--text2);text-align:right;line-height:1.5}
+.streak-jp{font-family:'Noto Sans JP',sans-serif;font-size:10px;color:var(--text3);margin-top:2px;text-align:right}
+
+/* ACCOUNTABILITY */
+.acc-card{margin:0 16px 8px;background:linear-gradient(135deg,rgba(8,4,20,0.88),rgba(4,2,12,0.88));border:1px solid var(--border2);border-radius:14px;padding:15px;text-align:center;position:relative;overflow:hidden;backdrop-filter:blur(8px)}
+.acc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--purple2),transparent)}
+.acc-jp{font-family:'Noto Sans JP',sans-serif;font-size:10px;color:var(--text3);margin-bottom:7px;letter-spacing:2px}
+.acc-msg{font-size:12px;color:var(--text2);line-height:1.7;font-style:italic}
+
+/* BOSS PREVIEW */
+.boss-prev{margin:0 16px 8px;background:linear-gradient(135deg,rgba(18,3,5,0.88),rgba(10,2,3,0.88));border:1px solid rgba(255,51,68,0.16);border-radius:14px;padding:13px;cursor:pointer;backdrop-filter:blur(8px)}
+.bp-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.bp-badge{font-size:8px;color:var(--red2);letter-spacing:3px;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:5px}
+.bp-dot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.bp-name{font-family:'Cinzel',serif;font-size:15px;color:var(--red);margin-bottom:4px;letter-spacing:1px}
+.bp-desc{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px}
+.bp-tag{font-size:9px;color:var(--gold);background:rgba(196,160,53,0.1);border:0.5px solid rgba(196,160,53,0.22);border-radius:5px;padding:2px 6px;display:inline-block;margin-right:4px}
+
+/* SHADOW PREVIEW */
+.shadow-prev{margin:0 16px 8px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:14px;padding:13px;cursor:pointer;backdrop-filter:blur(8px)}
+.sp-row{display:flex;gap:7px;margin-top:8px}
+.sp-unit{flex:1;aspect-ratio:1;border-radius:9px;background:rgba(3,3,12,0.8);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;overflow:hidden}
+.sp-unit.alive{background:linear-gradient(135deg,rgba(8,4,22,0.9),rgba(4,2,12,0.9));border-color:var(--border2)}
+.sp-unit.locked{opacity:0.15}
+
+/* QUEST CARDS */
+.quest-card{margin:0 16px 8px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;backdrop-filter:blur(8px)}
+.quest-card:active{transform:scale(0.97)}
+.quest-card.done{border-color:rgba(51,255,170,0.16);opacity:0.6}
+.quest-card.locked{opacity:0.26;pointer-events:none}
+.qglow{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:13px 0 0 13px}
+.quest-card:not(.done):not(.locked) .qglow{background:var(--purple2);animation:qp 2s infinite}
+.quest-card.done .qglow{background:var(--green)}
+@keyframes qp{0%,100%{opacity:0.25}50%{opacity:1}}
+.q-icon{width:38px;height:38px;border-radius:9px;flex-shrink:0;background:rgba(8,4,22,0.8);border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:17px}
+.q-name{font-size:14px;font-weight:600;color:var(--text)}
+.q-sub{font-size:10px;color:var(--purple2);margin-top:2px}
+.q-xp{font-size:10px;color:var(--text3);margin-top:1px}
+.q-check{width:26px;height:26px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center}
+.quest-card.done .q-check{background:rgba(51,255,170,0.1);border-color:var(--green)}
+.q-tick{display:none;font-size:12px;color:var(--green)}
+.quest-card.done .q-tick{display:block}
+
+/* INDOOR/OUTDOOR BUTTONS — Option 3 */
+.io-row{display:flex;gap:8px;margin:0 16px 8px}
+.io-btn{flex:1;padding:10px 8px;border-radius:11px;border:1px solid var(--border2);background:rgba(6,6,18,0.85);display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:all 0.2s;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text3);position:relative;overflow:hidden}
+.io-btn.active{border-color:var(--slborder);color:var(--slblue);background:var(--slbg)}
+.io-btn.active::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,180,255,0.8),transparent)}
+.io-btn:active{transform:scale(0.97)}
+
+/* SETTINGS PANEL */
+.settings-panel{position:fixed;top:0;right:-100%;width:85%;max-width:320px;height:100vh;background:rgba(4,4,14,0.98);border-left:1px solid var(--border2);z-index:700;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;padding-bottom:40px;backdrop-filter:blur(20px)}
+.settings-panel.open{right:0}
+.settings-overlay{position:fixed;inset:0;background:rgba(2,2,10,0.7);z-index:699;opacity:0;pointer-events:none;transition:opacity 0.35s}
+.settings-overlay.open{opacity:1;pointer-events:all}
+.sp-header{padding:54px 20px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
+.sp-title{font-family:'Cinzel',serif;font-size:16px;color:var(--text);letter-spacing:3px}
+.sp-close{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;padding:4px}
+.sp-section{padding:14px 20px 6px;font-size:8px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;font-weight:700}
+.sp-row{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
+.sp-label{font-size:13px;color:var(--text2)}
+.sp-val{font-size:13px;color:var(--purple2);font-weight:600}
+.sp-input{background:none;border:none;color:var(--purple2);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;text-align:right;outline:none;width:130px}
+.sp-time-input{background:none;border:none;color:var(--purple2);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;text-align:right;outline:none;width:100px}
+.toggle{width:42px;height:23px;background:var(--border2);border-radius:12px;position:relative;cursor:pointer;transition:background 0.3s;flex-shrink:0}
+.toggle.on{background:var(--purple)}
+.tknob{position:absolute;top:2px;left:2px;width:19px;height:19px;background:white;border-radius:50%;transition:transform 0.3s}
+.toggle.on .tknob{transform:translateX(19px)}
+.eq-item{padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
+.eq-name{font-size:13px;color:var(--text2)}
+.eq-del{background:none;border:none;color:rgba(255,51,68,0.4);font-size:18px;cursor:pointer;padding:2px 6px}
+.add-eq-row{padding:12px 20px}
+.add-eq-input{width:100%;background:rgba(6,6,18,0.9);border:0.5px solid var(--border2);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px;outline:none;margin-bottom:8px}
+.add-eq-btn{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border2);background:rgba(110,80,255,0.08);color:var(--purple3);font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer}
+.reset-btn{width:calc(100% - 40px);margin:16px 20px 0;padding:12px;border-radius:10px;border:1px solid rgba(255,51,68,0.3);background:rgba(255,51,68,0.04);color:rgba(255,51,68,0.6);font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer}
 
 /* ONBOARDING */
 .onboard{position:fixed;inset:0;z-index:900;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;transition:opacity 0.6s}
@@ -57,249 +356,28 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
 .ob-div{width:50px;height:0.5px;background:var(--border3);margin:0 auto 24px}
 .ob-title{font-family:'Cinzel',serif;font-size:18px;color:var(--text);text-align:center;letter-spacing:2px;margin-bottom:8px}
 .ob-sub{font-size:12px;color:var(--text3);text-align:center;line-height:1.7;margin-bottom:28px;max-width:280px}
-.ob-input{width:100%;background:var(--panel);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;color:var(--text);font-size:16px;outline:none;margin-bottom:12px;transition:border-color 0.2s;letter-spacing:0.5px}
+.ob-input{width:100%;background:rgba(6,6,18,0.92);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;color:var(--text);font-size:16px;outline:none;margin-bottom:12px;transition:border-color 0.2s}
 .ob-input:focus{border-color:var(--purple2)}
 .ob-input::placeholder{color:var(--text3)}
-.ob-btn{width:100%;padding:16px;border-radius:14px;border:1px solid var(--purple2);background:linear-gradient(135deg,#1a1040,#0d0820);color:var(--purple3);cursor:pointer;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;transition:all 0.2s;margin-top:8px}
+.ob-btn{width:100%;padding:15px;border-radius:14px;border:1px solid var(--purple2);background:linear-gradient(135deg,rgba(26,16,64,0.9),rgba(13,8,32,0.9));color:var(--purple3);cursor:pointer;font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase;transition:all 0.2s;margin-top:8px}
 .ob-btn:active{transform:scale(0.97)}
-.ob-btn.gold{border-color:var(--gold2);color:var(--gold2);background:linear-gradient(135deg,#1a1208,#0d0a04)}
 .ob-skip{font-size:11px;color:var(--text3);text-align:center;margin-top:14px;cursor:pointer;letter-spacing:1px;text-decoration:underline}
 .ob-days{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
-.ob-day{padding:10px 16px;border-radius:10px;border:1px solid var(--border2);background:var(--panel);color:var(--text3);cursor:pointer;font-size:14px;font-weight:600;letter-spacing:1px;transition:all 0.2s}
+.ob-day{padding:10px 16px;border-radius:10px;border:1px solid var(--border2);background:rgba(6,6,18,0.9);color:var(--text3);cursor:pointer;font-size:14px;font-weight:600;letter-spacing:1px;transition:all 0.2s}
 .ob-day.selected{border-color:var(--purple2);color:var(--purple3);background:rgba(110,80,255,0.1)}
 .photo-slots{display:flex;gap:12px;justify-content:center;margin-bottom:20px;width:100%}
-.photo-slot{flex:1;aspect-ratio:0.75;border-radius:12px;border:1px dashed var(--border2);background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color 0.2s;max-width:100px;position:relative;overflow:hidden}
-.photo-slot:active{border-color:var(--purple2)}
+.photo-slot{flex:1;aspect-ratio:0.75;border-radius:12px;border:1px dashed var(--border2);background:rgba(6,6,18,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;max-width:100px;position:relative;overflow:hidden}
 .photo-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px}
 .photo-slot-label{font-size:9px;color:var(--text3);letter-spacing:1px;text-align:center;margin-top:6px}
-.photo-slot-icon{font-size:24px}
-.ob-feel{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
-.feel-btn{flex:1;padding:14px 8px;border-radius:12px;border:1px solid var(--border2);background:var(--panel);color:var(--text3);cursor:pointer;font-size:13px;font-weight:600;text-align:center;transition:all 0.2s}
-.feel-btn.selected{border-color:var(--purple2);color:var(--purple3);background:rgba(110,80,255,0.1)}
 
-/* TOAST */
-.toast{position:fixed;top:52px;left:14px;right:14px;z-index:1000;background:linear-gradient(135deg,#0e0a22,#070414);border:1px solid var(--border2);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:12px;transform:translateY(-16px);opacity:0;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);pointer-events:none}
-.toast.show{transform:translateY(0);opacity:1}
-.toast-jp{font-family:'Noto Sans JP',sans-serif;font-size:18px;color:var(--purple3);flex-shrink:0}
-.toast-title{font-size:13px;color:var(--text);font-weight:600;line-height:1.3}
-.toast-sub{font-size:11px;color:var(--text3);margin-top:1px}
-
-/* LEVEL UP */
-.lvlup{position:fixed;inset:0;z-index:800;background:rgba(3,3,10,0.96);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s}
-.lvlup.show{opacity:1;pointer-events:all}
-.lvlup-rings{position:relative;width:190px;height:190px;display:flex;align-items:center;justify-content:center;margin-bottom:28px}
-.lring{position:absolute;border-radius:50%;border:1px solid var(--purple2);animation:ringx 2.4s infinite}
-.lring:nth-child(1){width:90px;height:90px;animation-delay:0s}
-.lring:nth-child(2){width:140px;height:140px;animation-delay:0.5s}
-.lring:nth-child(3){width:190px;height:190px;animation-delay:1s}
-@keyframes ringx{0%{opacity:0.9;transform:scale(0.7)}100%{opacity:0;transform:scale(1.3)}}
-.lring-kanji{font-family:'Noto Sans JP',sans-serif;font-size:30px;color:var(--purple3);position:absolute}
-.lvlup-title{font-family:'Cinzel',serif;font-size:26px;color:var(--gold2);letter-spacing:4px;margin-bottom:8px}
-.lvlup-sub{font-size:13px;color:var(--text2);letter-spacing:1px;margin-bottom:32px;text-align:center;padding:0 28px;line-height:1.6}
-.lvlup-close{padding:13px 36px;border-radius:12px;border:1px solid var(--purple2);background:rgba(110,80,255,0.08);color:var(--purple3);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
-
-/* TIMER OVERLAY */
-.timer-ov{position:fixed;inset:0;z-index:600;background:var(--bg);display:flex;flex-direction:column;align-items:center;padding:56px 22px 24px;opacity:0;pointer-events:none;transition:opacity 0.3s;overflow-y:auto}
-.timer-ov.show{opacity:1;pointer-events:all}
-.timer-back{position:absolute;top:50px;left:18px;background:none;border:none;color:var(--text3);font-size:12px;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;gap:5px}
-.timer-qname{font-family:'Cinzel',serif;font-size:20px;color:var(--text);text-align:center;letter-spacing:2px;margin-bottom:5px}
-.timer-reps{font-size:13px;color:var(--purple2);text-align:center;margin-bottom:6px}
-.timer-stat{font-size:11px;color:var(--text3);text-align:center;margin-bottom:24px;letter-spacing:1px}
-.timer-ring{position:relative;width:160px;height:160px;margin:0 auto 24px;flex-shrink:0}
-.timer-svg{position:absolute;inset:0;transform:rotate(-90deg)}
-.t-bg{fill:none;stroke:rgba(110,80,255,0.07);stroke-width:6}
-.t-prog{fill:none;stroke:var(--purple2);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
-.timer-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.timer-digits{font-family:'Cinzel',serif;font-size:40px;color:var(--purple3);line-height:1}
-.timer-slbl{font-size:9px;color:var(--text3);letter-spacing:3px;margin-top:3px}
-.inst-box{width:100%;background:var(--panel);border:0.5px solid var(--border);border-radius:14px;padding:15px;margin-bottom:16px}
-.inst-ttl{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:700}
-.inst-step{font-size:12px;color:var(--text2);line-height:1.9;display:flex;gap:8px;margin-bottom:2px}
-.inst-n{color:var(--purple2);font-weight:700;flex-shrink:0;min-width:16px}
-.mistake-box{width:100%;background:rgba(255,51,68,0.04);border:0.5px solid rgba(255,51,68,0.15);border-radius:10px;padding:12px 14px;margin-bottom:16px}
-.mistake-ttl{font-size:9px;color:rgba(255,51,68,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-weight:700}
-.mistake-txt{font-size:12px;color:var(--text2);line-height:1.6}
-.timer-done-btn{width:100%;padding:15px;border-radius:14px;border:1px solid var(--purple2);background:linear-gradient(135deg,#1a1040,#0d0820);color:var(--purple3);cursor:pointer;font-size:17px;font-weight:700;letter-spacing:3px;text-transform:uppercase;opacity:0.35;transition:opacity 0.4s;flex-shrink:0}
-.timer-done-btn.ready{opacity:1}
-
-/* LOCKDOWN */
-.lockdown{position:fixed;inset:0;z-index:950;background:#020006;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;opacity:0;pointer-events:none;transition:opacity 0.5s}
-.lockdown.show{opacity:1;pointer-events:all}
-.ld-scan{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);animation:ldscan 3s infinite linear}
-@keyframes ldscan{0%{transform:translateY(0)}100%{transform:translateY(100vh)}}
-.ld-kanji{font-family:'Noto Sans JP',sans-serif;font-size:50px;color:var(--red);text-align:center;margin-bottom:6px;text-shadow:0 0 40px rgba(255,51,68,0.5)}
-.ld-rom{font-size:10px;color:rgba(255,51,68,0.45);letter-spacing:5px;text-align:center;margin-bottom:24px}
-.ld-title{font-family:'Cinzel',serif;font-size:20px;color:var(--red);text-align:center;letter-spacing:3px;margin-bottom:12px}
-.ld-body{font-size:12px;color:var(--text2);text-align:center;line-height:1.9;margin-bottom:28px;max-width:290px}
-.ld-msg{background:rgba(255,51,68,0.05);border:1px solid rgba(255,51,68,0.18);border-radius:12px;padding:14px 18px;width:100%;font-size:12px;color:rgba(255,51,68,0.75);line-height:1.9;margin-bottom:16px;text-align:center}
-.ld-btn{width:100%;padding:15px;border-radius:14px;border:1px solid var(--red);background:rgba(255,51,68,0.06);color:var(--red);cursor:pointer;font-size:15px;font-weight:700;letter-spacing:3px}
-
-/* HEADER */
-.top-hdr{padding:52px 18px 0;display:flex;justify-content:space-between;align-items:flex-start}
-.hdr-left{}
-.app-wordmark{font-family:'Cinzel',serif;font-size:26px;font-weight:900;letter-spacing:6px;color:var(--purple3);text-shadow:0 0 30px rgba(110,80,255,0.35);line-height:1}
-.app-sub{font-family:'Noto Sans JP',sans-serif;font-size:9px;color:var(--text3);letter-spacing:3px;margin-top:3px}
-.hdr-menu{width:36px;height:36px;border-radius:10px;background:var(--panel);border:0.5px solid var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex-shrink:0}
-.hdr-menu-line{width:16px;height:1.5px;background:var(--text3);border-radius:2px;transition:background 0.2s}
-
-/* DAY CHOICE BUTTONS */
-.day-choices{display:flex;gap:8px;margin:16px 16px 0}
-.day-btn{flex:1;padding:14px 8px;border-radius:14px;border:1px solid var(--border2);background:var(--panel);display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
-.day-btn:active{transform:scale(0.96)}
-.day-btn.quest-btn{border-color:rgba(110,80,255,0.35)}
-.day-btn.work-btn{border-color:rgba(196,160,53,0.35)}
-.day-btn.rest-btn{border-color:rgba(110,80,255,0.15);opacity:0.5}
-.day-btn-icon{font-size:22px}
-.day-btn-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
-.day-btn.quest-btn .day-btn-label{color:var(--purple3)}
-.day-btn.work-btn .day-btn-label{color:var(--gold2)}
-.day-btn.rest-btn .day-btn-label{color:var(--text3)}
-.day-btn-sub{font-size:9px;color:var(--text3);text-align:center;line-height:1.4}
-
-/* ACTIVE STATE CARDS */
-.active-state-card{margin:16px 16px 0;border-radius:16px;padding:18px;position:relative;overflow:hidden}
-.active-state-card.quest-active{background:linear-gradient(135deg,#0d0820,#060414);border:1px solid var(--border2)}
-.active-state-card.work-active{background:linear-gradient(135deg,#120e02,#09070a);border:1px solid rgba(196,160,53,0.25)}
-.active-state-card.rest-active{background:linear-gradient(135deg,#06040e,#030208);border:1px solid var(--border)}
-.asc-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:8px}
-.quest-active .asc-label{color:var(--purple2)}
-.work-active .asc-label{color:var(--gold)}
-.rest-active .asc-label{color:var(--text3)}
-.asc-timer{font-family:'Cinzel',serif;font-size:34px;font-weight:900;line-height:1;margin-bottom:4px}
-.quest-active .asc-timer{color:var(--purple3)}
-.work-active .asc-timer{color:var(--gold2)}
-.asc-jp{font-family:'Noto Sans JP',sans-serif;font-size:11px;color:var(--text3);margin-bottom:14px}
-.asc-btn{padding:12px 20px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all 0.2s}
-.quest-active .asc-btn{background:rgba(110,80,255,0.15);border:1px solid var(--purple2);color:var(--purple3)}
-.work-active .asc-btn{background:rgba(196,160,53,0.1);border:1px solid var(--gold);color:var(--gold2)}
-
-/* LICENSE CARD */
-.license-card{margin:16px 16px 0;background:linear-gradient(135deg,#0d0820 0%,#06040f 50%,#0a0618 100%);border:1px solid var(--border2);border-radius:18px;padding:18px;position:relative;overflow:hidden;cursor:pointer}
-.license-card::before{content:'';position:absolute;top:-40px;right:-30px;width:180px;height:180px;background:radial-gradient(circle,rgba(110,80,255,0.1) 0%,transparent 70%);pointer-events:none}
-.license-card::after{content:'HUNTER LICENSE';position:absolute;bottom:12px;right:14px;font-family:'Cinzel',serif;font-size:7px;color:var(--text4);letter-spacing:3px}
-.lc-top{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
-.lc-photo{width:56px;height:56px;border-radius:12px;background:var(--bg3);border:1px solid var(--border2);object-fit:cover;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden}
-.lc-photo img{width:100%;height:100%;object-fit:cover}
-.lc-info{flex:1}
-.lc-name{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--text);line-height:1.1}
-.lc-title{font-size:11px;color:var(--purple2);letter-spacing:1px;margin-top:3px}
-.lc-dob{font-size:10px;color:var(--text3);margin-top:2px;letter-spacing:0.5px}
-.lc-rank-row{display:flex;align-items:center;justify-content:space-between}
-.lc-rank{font-family:'Cinzel',serif;font-size:14px;color:var(--gold2);font-weight:700;letter-spacing:2px}
-.lc-level{display:flex;align-items:baseline;gap:4px}
-.lc-lvl-label{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
-.lc-lvl-num{font-family:'Cinzel',serif;font-size:22px;color:var(--purple3);font-weight:900;line-height:1}
-.lc-days{font-size:10px;color:var(--text3)}
-.xp-row{margin-top:12px}
-.xp-hdr{display:flex;justify-content:space-between;margin-bottom:5px}
-.xp-lbl{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
-.xp-val{font-size:10px;color:var(--purple2);font-weight:600}
-.xp-track{height:6px;background:rgba(110,80,255,0.07);border-radius:3px;overflow:hidden;border:0.5px solid var(--border)}
-.xp-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple3));border-radius:3px;transition:width 1s cubic-bezier(0.4,0,0.2,1);position:relative}
-.xp-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:12px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25));animation:xsh 2s infinite}
-@keyframes xsh{0%,100%{opacity:0}50%{opacity:1}}
-
-/* STATUS WINDOW */
-.status-window{margin:14px 16px 0;background:var(--panel);border:0.5px solid var(--border);border-radius:16px;padding:16px}
-.sw-title{font-size:9px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:12px;text-align:center}
-.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sw-stat{background:var(--bg3);border:0.5px solid var(--border);border-radius:12px;padding:12px 10px;display:flex;align-items:center;gap:10px;position:relative;overflow:hidden}
-.sw-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;border-radius:12px 12px 0 0}
-.sw-stat.str::before{background:linear-gradient(90deg,transparent,rgba(255,120,120,0.6),transparent)}
-.sw-stat.agi::before{background:linear-gradient(90deg,transparent,rgba(51,204,255,0.6),transparent)}
-.sw-stat.vit::before{background:linear-gradient(90deg,transparent,rgba(51,255,170,0.6),transparent)}
-.sw-stat.comb::before{background:linear-gradient(90deg,transparent,rgba(224,188,85,0.6),transparent)}
-.sw-icon{font-size:20px;flex-shrink:0}
-.sw-right{flex:1}
-.sw-name{font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:700}
-.sw-val{font-family:'Cinzel',serif;font-size:22px;font-weight:900;line-height:1.1}
-.sw-stat.str .sw-val{color:#ff9999}
-.sw-stat.agi .sw-val{color:var(--cyan)}
-.sw-stat.vit .sw-val{color:var(--green)}
-.sw-stat.comb .sw-val{color:var(--gold2)}
-.sw-bar{height:2px;background:rgba(255,255,255,0.04);border-radius:1px;margin-top:5px;overflow:hidden}
-.sw-fill{height:100%;border-radius:1px;transition:width 0.8s}
-.sw-stat.str .sw-fill{background:#ff9999}
-.sw-stat.agi .sw-fill{background:var(--cyan)}
-.sw-stat.vit .sw-fill{background:var(--green)}
-.sw-stat.comb .sw-fill{background:var(--gold2)}
-
-/* SECTION HEADER */
-.sec-hdr{display:flex;align-items:center;gap:10px;padding:18px 18px 10px}
-.sec-line{flex:1;height:0.5px;background:var(--border)}
-.sec-title{font-size:8px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;font-weight:700;white-space:nowrap}
-
-/* WEATHER STRIP */
-.weather-strip{margin:10px 16px 0;background:var(--panel);border:0.5px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
-.wx-left{display:flex;align-items:center;gap:8px}
-.wx-icon{font-size:18px}
-.wx-temp{font-family:'Cinzel',serif;font-size:16px;color:var(--text)}
-.wx-desc{font-size:11px;color:var(--text3);margin-top:1px}
-.wx-right{font-size:10px;color:var(--text3);text-align:right;line-height:1.6}
-
-/* STREAK */
-.streak-card{margin:0 16px 0;background:var(--panel);border:0.5px solid var(--border);border-radius:14px;padding:15px}
-.streak-days{display:flex;justify-content:space-between;margin-bottom:12px}
-.sday{width:34px;height:34px;border-radius:50%;background:var(--bg3);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text3);font-weight:700;text-transform:uppercase}
-.sday.done{background:rgba(110,80,255,0.14);border-color:var(--purple2);color:var(--purple3)}
-.sday.today{background:var(--purple);border-color:var(--purple3);color:white;box-shadow:0 0 10px rgba(110,80,255,0.4)}
-.streak-footer{display:flex;justify-content:space-between;align-items:flex-end}
-.streak-num{font-family:'Cinzel',serif;font-size:22px;color:var(--gold2);line-height:1}
-.streak-lbl{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
-.streak-right{text-align:right}
-.streak-msg{font-size:11px;color:var(--text2);line-height:1.5}
-.streak-jp{font-family:'Noto Sans JP',sans-serif;font-size:10px;color:var(--text3);margin-top:2px}
-
-/* BOSS PREVIEW */
-.boss-prev{margin:0 16px;background:linear-gradient(135deg,#160406,#0b0204);border:1px solid rgba(255,51,68,0.18);border-radius:14px;padding:15px;cursor:pointer;position:relative;overflow:hidden}
-.boss-prev::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,51,68,0.45),transparent)}
-.bp-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.bp-badge{font-size:8px;color:var(--red2);letter-spacing:3px;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:6px}
-.bp-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.5s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-.bp-timer{font-size:10px;color:rgba(255,51,68,0.6)}
-.bp-name{font-family:'Cinzel',serif;font-size:17px;color:var(--red);margin-bottom:5px;letter-spacing:1px}
-.bp-desc{font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:10px}
-.bp-tag{font-size:9px;color:var(--gold);background:rgba(196,160,53,0.1);border:0.5px solid rgba(196,160,53,0.25);border-radius:5px;padding:2px 7px;letter-spacing:1px;display:inline-block;margin-right:5px}
-
-/* SHADOW PREVIEW */
-.shadow-prev{margin:0 16px;background:var(--panel);border:0.5px solid var(--border);border-radius:14px;padding:15px;cursor:pointer}
-.sp-count{font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:10px}
-.sp-row{display:flex;gap:8px}
-.sp-unit{flex:1;aspect-ratio:1;border-radius:10px;background:var(--bg3);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;overflow:hidden}
-.sp-unit.alive{background:linear-gradient(135deg,#0d0820,#060412);border-color:var(--border2)}
-.sp-unit.alive::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(110,80,255,0.2),transparent 70%)}
-.sp-unit.locked{opacity:0.15}
-.sp-more{flex:1;aspect-ratio:1;border-radius:10px;background:var(--bg3);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);font-weight:600}
-
-/* TODAY QUESTS PREVIEW */
-.quest-card{margin:0 16px 8px;background:var(--panel);border:0.5px solid var(--border);border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
-.quest-card:active{transform:scale(0.97)}
-.quest-card.done{border-color:rgba(51,255,170,0.18);opacity:0.6}
-.quest-card.locked{opacity:0.28;pointer-events:none}
-.qglow{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:13px 0 0 13px}
-.quest-card:not(.done):not(.locked) .qglow{background:var(--purple2);animation:qp 2s infinite}
-.quest-card.done .qglow{background:var(--green)}
-@keyframes qp{0%,100%{opacity:0.25}50%{opacity:1}}
-.q-icon{width:40px;height:40px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,#100828,#070316);border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px}
-.q-body{flex:1;min-width:0}
-.q-name{font-size:14px;font-weight:600;color:var(--text)}
-.q-sub{font-size:10px;color:var(--purple2);margin-top:2px}
-.q-xp{font-size:10px;color:var(--text3);margin-top:2px}
-.q-check{width:26px;height:26px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center}
-.quest-card.done .q-check{background:rgba(51,255,170,0.12);border-color:var(--green)}
-.q-tick{display:none;font-size:12px;color:var(--green)}
-.quest-card.done .q-tick{display:block}
-
-/* PROGRESS SCREEN */
-.stat-detail{margin:0 16px 10px;background:var(--panel);border:0.5px solid var(--border);border-radius:14px;padding:16px}
-.sd-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.sd-icon{font-size:24px}
-.sd-name{font-family:'Cinzel',serif;font-size:17px;font-weight:700}
-.sd-val{font-family:'Cinzel',serif;font-size:30px;font-weight:900;margin-left:auto}
+/* PROGRESS */
+.stat-detail{margin:0 16px 10px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:14px;padding:15px;backdrop-filter:blur(8px)}
+.sd-hdr{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.sd-icon{font-size:22px}.sd-name{font-family:'Cinzel',serif;font-size:16px;font-weight:700}
+.sd-val{font-family:'Cinzel',serif;font-size:28px;font-weight:900;margin-left:auto}
 .sd-sub{font-size:10px;color:var(--text3);margin-top:1px}
-.sd-bigbar{height:7px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;margin-bottom:8px}
-.sd-bigfill{height:100%;border-radius:4px;transition:width 1s}
+.sd-bigbar{height:6px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.sd-bigfill{height:100%;border-radius:3px;transition:width 1s}
 .sd-desc{font-size:11px;color:var(--text2);line-height:1.7}
 
 /* RANK ROAD */
@@ -308,141 +386,90 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
 .rank-lcol{display:flex;flex-direction:column;align-items:center;width:30px;flex-shrink:0}
 .rank-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:'Cinzel',serif;flex-shrink:0}
 .rank-dot.cur{background:var(--purple);color:white;box-shadow:0 0 14px rgba(110,80,255,0.5)}
-.rank-dot.done2{background:rgba(51,255,170,0.12);color:var(--green);border:1px solid rgba(51,255,170,0.3)}
-.rank-dot.lock{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.rank-dot.lock{background:rgba(3,3,12,0.8);color:var(--text3);border:1px solid var(--border)}
 .rank-conn{width:1px;flex:1;min-height:18px;background:var(--border);margin:2px 0}
 .rank-info{padding:3px 0 14px;flex:1}
 .rank-rname{font-family:'Cinzel',serif;font-size:14px;font-weight:700}
-.rank-rname.cur{color:var(--purple3)}.rank-rname.done2{color:var(--green)}.rank-rname.lock{color:var(--text3)}
+.rank-rname.cur{color:var(--purple3)}.rank-rname.lock{color:var(--text3)}
 .rank-req{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.8}
 .rank-req span{color:var(--text2)}
 
-/* METRIC */
-.metric-card{margin:0 16px 8px;background:var(--panel);border:0.5px solid var(--border);border-radius:13px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+/* BODY */
+.metric-card{margin:0 16px 8px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:13px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(8px)}
 .metric-lbl{font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
-.metric-val{font-family:'Cinzel',serif;font-size:26px;color:var(--text);font-weight:700}
+.metric-val{font-family:'Cinzel',serif;font-size:24px;color:var(--text);font-weight:700}
 .metric-unit{font-size:12px;color:var(--text3);margin-left:3px}
 .metric-change{font-size:11px;color:var(--green)}
 .input-row{margin:0 16px 8px;display:flex;gap:8px}
-.m-input{flex:1;background:var(--panel);border:0.5px solid var(--border);border-radius:10px;padding:12px 13px;color:var(--text);font-size:15px;outline:none;transition:border-color 0.2s}
+.m-input{flex:1;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:10px;padding:12px 13px;color:var(--text);font-size:15px;outline:none;transition:border-color 0.2s}
 .m-input:focus{border-color:var(--purple2)}
 .m-input::placeholder{color:var(--text3)}
-.save-btn{background:rgba(110,80,255,0.1);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;color:var(--purple3);font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer}
-
-/* PHOTO COMPARISON */
-.photo-compare{margin:0 16px 10px;background:var(--panel);border:0.5px solid var(--border);border-radius:14px;padding:16px}
+.save-btn{background:rgba(110,80,255,0.1);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--purple3);font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer}
+.photo-compare{margin:0 16px 10px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:14px;padding:15px;backdrop-filter:blur(8px)}
 .pc-title{font-size:9px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:12px;text-align:center}
 .pc-row{display:flex;gap:10px}
-.pc-slot{flex:1;aspect-ratio:0.75;border-radius:10px;background:var(--bg3);border:0.5px solid var(--border);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.pc-slot{flex:1;aspect-ratio:0.75;border-radius:10px;background:rgba(3,3,12,0.8);border:0.5px solid var(--border);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
 .pc-slot img{width:100%;height:100%;object-fit:cover}
-.pc-lbl{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:8px;color:white;letter-spacing:1px;background:rgba(0,0,0,0.5);padding:2px}
-.pc-placeholder{font-size:11px;color:var(--text3);text-align:center;letter-spacing:1px;padding:8px}
+.pc-lbl{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:8px;color:white;letter-spacing:1px;background:rgba(0,0,0,0.5);padding:2px}
 
-/* BOSS FULL */
-.boss-full-card{margin:16px;background:linear-gradient(135deg,#160406,#0b0204);border:1px solid rgba(255,51,68,0.22);border-radius:18px;padding:22px;text-align:center}
-.bf-emoji{font-size:56px;display:block;margin-bottom:14px;animation:bfloat 3s infinite ease-in-out}
+/* BOSS */
+.boss-full-card{margin:16px;background:linear-gradient(135deg,rgba(18,3,5,0.88),rgba(10,2,3,0.88));border:1px solid rgba(255,51,68,0.2);border-radius:18px;padding:22px;text-align:center;backdrop-filter:blur(8px)}
+.bf-emoji{font-size:54px;display:block;margin-bottom:14px;animation:bfloat 3s infinite ease-in-out}
 @keyframes bfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-.bf-name{font-family:'Cinzel',serif;font-size:22px;color:var(--red);margin-bottom:6px;letter-spacing:2px}
-.bf-rank{font-size:9px;color:rgba(255,51,68,0.55);letter-spacing:3px;margin-bottom:14px}
-.bf-hp{height:8px;background:rgba(255,51,68,0.1);border-radius:4px;overflow:hidden;margin-bottom:14px;border:0.5px solid rgba(255,51,68,0.2)}
+.bf-name{font-family:'Cinzel',serif;font-size:21px;color:var(--red);margin-bottom:6px;letter-spacing:2px}
+.bf-rank{font-size:9px;color:rgba(255,51,68,0.55);letter-spacing:3px;margin-bottom:12px}
+.bf-hp{height:7px;background:rgba(255,51,68,0.1);border-radius:4px;overflow:hidden;margin-bottom:14px}
 .bf-hp-fill{height:100%;background:linear-gradient(90deg,var(--red2),var(--red));border-radius:4px;transition:width 0.8s}
-.bf-desc{font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:18px}
-.bf-reqs{background:rgba(255,51,68,0.04);border:0.5px solid rgba(255,51,68,0.14);border-radius:10px;padding:13px;margin-bottom:18px;text-align:left}
+.bf-desc{font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:16px}
+.bf-reqs{background:rgba(255,51,68,0.04);border:0.5px solid rgba(255,51,68,0.12);border-radius:10px;padding:12px;margin-bottom:16px;text-align:left}
 .bf-req-title{font-size:8px;color:rgba(255,51,68,0.6);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;font-weight:700}
-.bf-req-item{font-size:12px;color:var(--text2);line-height:1.9;display:flex;gap:7px;align-items:flex-start}
-.bf-req-item.done2{color:var(--green)}
+.bf-req-item{font-size:12px;color:var(--text2);line-height:1.9;display:flex;gap:7px}
 .bf-bullet{color:var(--red2);flex-shrink:0}
-.bf-bullet.done2{color:var(--green)}
-.bf-engage{width:100%;padding:15px;border-radius:14px;border:1px solid var(--red);background:rgba(255,51,68,0.07);color:var(--red);cursor:pointer;font-size:17px;font-weight:700;letter-spacing:4px}
+.bf-engage{width:100%;padding:14px;border-radius:14px;border:1px solid var(--red);background:rgba(255,51,68,0.07);color:var(--red);cursor:pointer;font-size:17px;font-weight:700;letter-spacing:4px}
 
-/* SHADOW ARMY */
+/* ARMY */
 .army-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 16px 16px}
-.army-unit{aspect-ratio:1;border-radius:12px;background:var(--panel);border:0.5px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer;transition:transform 0.2s}
+.army-unit{aspect-ratio:1;border-radius:12px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer;transition:transform 0.2s;backdrop-filter:blur(4px)}
 .army-unit:active{transform:scale(0.93)}
-.army-unit.alive{background:linear-gradient(135deg,#0d0820,#060412);border-color:var(--border2)}
-.army-unit.alive::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(110,80,255,0.22),transparent 70%)}
-.army-unit.lock2{opacity:0.12}
-.army-emoji{font-size:24px;position:relative;z-index:1}
-.army-name{font-size:7px;color:var(--text3);letter-spacing:1px;margin-top:4px;text-align:center;position:relative;z-index:1}
+.army-unit.alive{background:linear-gradient(135deg,rgba(8,4,22,0.9),rgba(4,2,12,0.9));border-color:var(--border2)}
+.army-unit.alive::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(110,80,255,0.2),transparent 70%)}
+.army-unit.lock2{opacity:0.1}
+.army-emoji{font-size:22px;position:relative;z-index:1}
+.army-name{font-size:7px;color:var(--text3);letter-spacing:1px;margin-top:3px;text-align:center;position:relative;z-index:1}
 .army-unit.alive .army-name{color:var(--purple3)}
+.army-role{font-size:6px;color:var(--gold);margin-top:1px;position:relative;z-index:1}
 
-/* MISSION LOG */
-.log-entry{margin:0 16px 7px;background:var(--panel);border:0.5px solid var(--border);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:11px}
-.log-icon{width:36px;height:36px;border-radius:9px;flex-shrink:0;background:var(--bg3);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px}
+/* LOG */
+.log-entry{margin:0 16px 7px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px;backdrop-filter:blur(8px)}
+.log-icon{width:35px;height:35px;border-radius:9px;flex-shrink:0;background:rgba(3,3,12,0.8);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px}
 .log-title2{font-size:13px;color:var(--text);font-weight:500}
 .log-meta{font-size:10px;color:var(--text3);margin-top:1px}
 .log-xp2{font-size:11px;color:var(--purple2);font-weight:700;flex-shrink:0}
-
-/* SETTINGS */
-.settings-panel{position:fixed;top:0;right:-100%;width:85%;max-width:320px;height:100vh;background:var(--bg2);border-left:1px solid var(--border2);z-index:700;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;padding-bottom:40px}
-.settings-panel.open{right:0}
-.settings-overlay{position:fixed;inset:0;background:rgba(3,3,10,0.7);z-index:699;opacity:0;pointer-events:none;transition:opacity 0.35s}
-.settings-overlay.open{opacity:1;pointer-events:all}
-.sp-header{padding:54px 20px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
-.sp-title{font-family:'Cinzel',serif;font-size:16px;color:var(--text);letter-spacing:3px}
-.sp-close{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;padding:4px}
-.sp-section{padding:14px 20px 6px;font-size:8px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;font-weight:700}
-.sp-row{padding:13px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
-.sp-label{font-size:13px;color:var(--text2)}
-.sp-val{font-size:13px;color:var(--purple2);font-weight:600}
-.sp-input{background:none;border:none;color:var(--purple2);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;text-align:right;outline:none;width:130px}
-.toggle{width:42px;height:23px;background:var(--border2);border-radius:12px;position:relative;cursor:pointer;transition:background 0.3s;flex-shrink:0}
-.toggle.on{background:var(--purple)}
-.tknob{position:absolute;top:2px;left:2px;width:19px;height:19px;background:white;border-radius:50%;transition:transform 0.3s}
-.toggle.on .tknob{transform:translateX(19px)}
-.eq-item{padding:11px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
-.eq-name{font-size:13px;color:var(--text2)}
-.eq-del{background:none;border:none;color:rgba(255,51,68,0.4);font-size:18px;cursor:pointer;padding:2px 6px}
-.add-eq-row{padding:13px 20px}
-.add-eq-input{width:100%;background:var(--panel);border:0.5px solid var(--border2);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px;outline:none;margin-bottom:8px}
-.add-eq-input:focus{border-color:var(--purple2)}
-.add-eq-input::placeholder{color:var(--text3)}
-.add-eq-btn{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border2);background:rgba(110,80,255,0.08);color:var(--purple3);font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer}
-
-/* JOURNAL */
-.journal-input-box{margin:0 16px 10px;background:var(--panel);border:0.5px solid var(--border);border-radius:14px;padding:15px}
-.ji-title{font-size:9px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:10px}
-.ji-q{font-size:13px;color:var(--purple2);margin-bottom:10px;font-style:italic}
-.ji-textarea{width:100%;background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:13px;outline:none;resize:none;min-height:70px;line-height:1.6;transition:border-color 0.2s}
+.journal-input-box{margin:0 16px 10px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:14px;padding:14px;backdrop-filter:blur(8px)}
+.ji-title{font-size:9px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:9px}
+.ji-q{font-size:12px;color:var(--purple2);margin-bottom:9px;font-style:italic}
+.ji-textarea{width:100%;background:rgba(3,3,12,0.8);border:0.5px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:13px;outline:none;resize:none;min-height:70px;line-height:1.6;transition:border-color 0.2s}
 .ji-textarea:focus{border-color:var(--purple2)}
 .ji-textarea::placeholder{color:var(--text3)}
-.ji-save{margin-top:8px;padding:10px 20px;border-radius:9px;border:1px solid var(--border2);background:rgba(110,80,255,0.08);color:var(--purple3);font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer}
+.ji-save{margin-top:8px;padding:9px 20px;border-radius:9px;border:1px solid var(--border2);background:rgba(110,80,255,0.08);color:var(--purple3);font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer}
 
-/* ACCOUNTABILITY MSG */
-.acc-card{margin:0 16px 10px;background:linear-gradient(135deg,#0a0618,#060310);border:1px solid var(--border2);border-radius:14px;padding:18px;text-align:center;position:relative;overflow:hidden}
-.acc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--purple2),transparent)}
-.acc-jp{font-family:'Noto Sans JP',sans-serif;font-size:11px;color:var(--text3);margin-bottom:8px;letter-spacing:2px}
-.acc-msg{font-size:13px;color:var(--text2);line-height:1.7;font-style:italic}
+/* GPS */
+.gps-card{margin:0 16px 8px;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:13px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(8px)}
+.gps-label{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:700}
+.gps-val{font-family:'Cinzel',serif;font-size:16px;color:var(--green)}
+.gps-status{font-size:10px;color:var(--text3);margin-top:2px}
 
-/* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .fu{animation:fadeUp 0.45s ease both}
 .fu:nth-child(1){animation-delay:0.04s}.fu:nth-child(2){animation-delay:0.08s}.fu:nth-child(3){animation-delay:0.12s}.fu:nth-child(4){animation-delay:0.16s}.fu:nth-child(5){animation-delay:0.2s}.fu:nth-child(6){animation-delay:0.24s}.fu:nth-child(7){animation-delay:0.28s}.fu:nth-child(8){animation-delay:0.32s}
-
-/* WATER TRACKER */
-.water-card{margin:0 16px 8px;background:var(--panel);border:0.5px solid var(--border);border-radius:13px;padding:14px 16px}
-.wt-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.wt-title{font-size:9px;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;font-weight:700}
-.wt-val{font-family:'Cinzel',serif;font-size:16px;color:var(--cyan)}
-.wt-track{height:6px;background:rgba(51,204,255,0.07);border-radius:3px;overflow:hidden;margin-bottom:10px;border:0.5px solid rgba(51,204,255,0.12)}
-.wt-fill{height:100%;background:linear-gradient(90deg,rgba(51,204,255,0.5),var(--cyan));border-radius:3px;transition:width 0.5s}
-.wt-btns{display:flex;gap:6px}
-.wt-btn{flex:1;padding:8px 4px;border-radius:8px;border:0.5px solid rgba(51,204,255,0.2);background:rgba(51,204,255,0.05);color:var(--cyan);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px}
-.wt-btn:active{background:rgba(51,204,255,0.12)}
-
-/* DUNGEON CLEARED */
-.dungeon-cleared{position:fixed;inset:0;z-index:850;background:rgba(3,3,10,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.5s;padding:32px}
-.dungeon-cleared.show{opacity:1;pointer-events:all}
-.dc-title{font-family:'Cinzel',serif;font-size:28px;color:var(--gold2);letter-spacing:4px;margin-bottom:8px;text-align:center}
-.dc-jp{font-family:'Noto Sans JP',sans-serif;font-size:36px;color:var(--purple3);margin-bottom:6px;text-align:center;text-shadow:0 0 30px rgba(110,80,255,0.6)}
-.dc-rom{font-size:11px;color:var(--text3);letter-spacing:4px;margin-bottom:28px;text-align:center}
-.dc-xp{font-family:'Cinzel',serif;font-size:20px;color:var(--gold2);margin-bottom:6px}
-.dc-sub{font-size:13px;color:var(--text2);margin-bottom:32px;text-align:center;line-height:1.6}
-.dc-close{padding:13px 36px;border-radius:12px;border:1px solid var(--gold2);background:rgba(196,160,53,0.08);color:var(--gold2);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
 </style>
 </head>
 <body>
-<canvas id="particles"></canvas>
+
+<div class="edge-glow"></div>
+
+<!-- GLITCH -->
+<div class="glitch-ov" id="glitchOv"><span class="glitch-jp" id="glitchJp">お前はまだ弱い</span></div>
 
 <!-- TOAST -->
 <div class="toast" id="toast">
@@ -455,7 +482,7 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
   <div class="lvlup-rings"><div class="lring"></div><div class="lring"></div><div class="lring"></div><div class="lring-kanji">強くなった</div></div>
   <div class="lvlup-title">LEVEL UP</div>
   <div class="lvlup-sub" id="lvlupMsg">You have grown stronger, Hunter</div>
-  <button class="lvlup-close" onclick="closeLvlUp()">ARISE →</button>
+  <button class="lvlup-close" onclick="document.getElementById('lvlup').classList.remove('show')">ARISE →</button>
 </div>
 
 <!-- DUNGEON CLEARED -->
@@ -464,15 +491,51 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
   <div class="dc-rom">MEZAME YO · AWAKEN</div>
   <div class="dc-title">DUNGEON CLEARED</div>
   <div class="dc-xp" id="dcXP">+0 XP Today</div>
-  <div class="dc-sub" id="dcMsg">All quests complete, Hunter.<br>The System acknowledges your effort.</div>
+  <div class="dc-sub" id="dcMsg">All quests complete, Hunter.</div>
   <button class="dc-close" onclick="document.getElementById('dungeonCleared').classList.remove('show')">ARISE →</button>
+</div>
+
+<!-- MORNING FEELING -->
+<div class="morning-feel" id="morningFeel">
+  <div class="mf-kanji">起きろ</div>
+  <div class="mf-title">How Do You Feel Today, Hunter?</div>
+  <div class="mf-date" id="mfDate"></div>
+  <div class="mf-options">
+    <div class="mf-btn fresh" onclick="setFeeling('fresh')">
+      <div class="mf-btn-icon">💪</div>
+      <div class="mf-btn-label">Fresh</div>
+      <div class="mf-btn-sub">Full power<br>today</div>
+    </div>
+    <div class="mf-btn tired" onclick="setFeeling('tired')">
+      <div class="mf-btn-icon">😴</div>
+      <div class="mf-btn-label">Tired</div>
+      <div class="mf-btn-sub">Still training<br>today</div>
+    </div>
+    <div class="mf-btn exhausted" onclick="showExhPopup()">
+      <div class="mf-btn-icon">💀</div>
+      <div class="mf-btn-label">Exhausted</div>
+      <div class="mf-btn-sub">Light quest<br>activated</div>
+    </div>
+  </div>
+</div>
+
+<!-- EXHAUSTED REASON -->
+<div class="exh-popup" id="exhPopup">
+  <div class="exh-title">Why Are You Exhausted?</div>
+  <div class="exh-sub">The System needs to know. One tap.</div>
+  <div class="exh-options">
+    <div class="exh-opt" onclick="selectExhausted('work')"><div class="exh-opt-icon">💼</div><div><div class="exh-opt-title">Long Work Day</div><div class="exh-opt-sub">Physical labour — body is spent</div></div></div>
+    <div class="exh-opt" onclick="selectExhausted('sleep')"><div class="exh-opt-icon">😴</div><div><div class="exh-opt-title">Bad Sleep</div><div class="exh-opt-sub">Water reminder activated</div></div></div>
+    <div class="exh-opt" onclick="selectExhausted('sore')"><div class="exh-opt-icon">💪</div><div><div class="exh-opt-title">Body Is Sore</div><div class="exh-opt-sub">Active recovery — stretch focused</div></div></div>
+    <div class="exh-opt" onclick="selectExhausted('sick')"><div class="exh-opt-icon">🤒</div><div><div class="exh-opt-title">Feeling Sick</div><div class="exh-opt-sub">Minimal — stretching only</div></div></div>
+  </div>
 </div>
 
 <!-- TIMER -->
 <div class="timer-ov" id="timerOv">
   <button class="timer-back" onclick="closeTimer()">← BACK</button>
   <div class="timer-qname" id="tQName">PUSH-UPS</div>
-  <div class="timer-reps" id="tReps">10 repetitions</div>
+  <div class="timer-reps" id="tReps">10 reps</div>
   <div class="timer-stat" id="tStat">BUILDS STR</div>
   <div class="timer-ring">
     <svg class="timer-svg" viewBox="0 0 160 160">
@@ -480,7 +543,7 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
       <circle class="t-prog" id="tCircle" cx="80" cy="80" r="70" stroke-dasharray="440" stroke-dashoffset="0"/>
     </svg>
     <div class="timer-inner">
-      <div class="timer-digits" id="tDigits">60</div>
+      <div class="timer-digits" id="tDigits">--</div>
       <div class="timer-slbl">seconds</div>
     </div>
   </div>
@@ -492,6 +555,7 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
     <div class="mistake-ttl">⚠ Common Mistake</div>
     <div class="mistake-txt" id="tMistake"></div>
   </div>
+  <button class="begin-btn" id="beginBtn" onclick="beginTimer()">BEGIN →</button>
   <button class="timer-done-btn" id="tDoneBtn" onclick="completeQuest()">MARK COMPLETE</button>
 </div>
 
@@ -501,47 +565,44 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
   <div class="ld-kanji">罰を受けろ</div>
   <div class="ld-rom">BATSU WO UKERO</div>
   <div class="ld-title">ACCEPT YOUR PUNISHMENT</div>
-  <div class="ld-body">Hunter. You failed today's quest. The System demands payment. There is no escape from weakness — only through it.</div>
+  <div class="ld-body">Hunter. You failed today. The System demands payment. There is no escape from weakness — only through it.</div>
   <div class="ld-msg">⚠ Enable Flight Mode now.<br><br>Settings → Flight Mode → ON<br><br>You are in isolation until your penalty quest is complete.</div>
   <button class="ld-btn" onclick="startPenalty()">BEGIN PENALTY QUEST →</button>
 </div>
 
-<!-- SETTINGS PANEL -->
+<!-- SETTINGS -->
 <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
 <div class="settings-panel" id="settingsPanel">
-  <div class="sp-header">
-    <span class="sp-title">SETTINGS</span>
-    <button class="sp-close" onclick="closeSettings()">✕</button>
-  </div>
+  <div class="sp-header"><span class="sp-title">SETTINGS</span><button class="sp-close" onclick="closeSettings()">✕</button></div>
   <div class="sp-section">Hunter Profile</div>
   <div class="sp-row"><span class="sp-label">Name</span><input class="sp-input" id="sName" placeholder="Hunter name" onchange="saveSetting('name',this.value)"></div>
-  <div class="sp-row"><span class="sp-label">Date of Birth</span><input class="sp-input" id="sDob" placeholder="DD/MM/YYYY" onchange="saveSetting('dob',this.value)"></div>
-  <div class="sp-row"><span class="sp-label">Postcode</span><input class="sp-input" id="sPostcode" placeholder="Enter postcode" onchange="saveSetting('postcode',this.value)"></div>
+  <div class="sp-row"><span class="sp-label">Date of Birth</span><input class="sp-input" id="sDob" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric" oninput="filterDob(this)" onchange="saveSetting('dob',this.value)"></div>
+  <div class="sp-row"><span class="sp-label">Postcode</span><input class="sp-input" id="sPostcode" placeholder="e.g. AB12 3CD" onchange="validatePostcode(this.value)"></div>
   <div class="sp-row"><span class="sp-label">Target Weight</span><input class="sp-input" id="sTarget" placeholder="kg" type="number" onchange="saveSetting('targetWeight',this.value)"></div>
-  <div class="sp-section">Schedule</div>
-  <div class="sp-row"><span class="sp-label">Sleep Time</span><input class="sp-input" id="sSleep" placeholder="e.g. 1:00 AM" onchange="saveSetting('sleepTime',this.value)"></div>
+  <div class="sp-section">Sleep Cycle</div>
+  <div class="sp-row"><span class="sp-label">Target Sleep Time</span><input class="sp-time-input" id="sSleepTarget" placeholder="e.g. 23:00" type="time" onchange="saveSetting('sleepTarget',this.value)"></div>
+  <div class="sp-row"><span class="sp-label">Target Wake Time</span><input class="sp-time-input" id="sWakeTarget" placeholder="e.g. 07:00" type="time" onchange="saveSetting('wakeTarget',this.value)"></div>
   <div class="sp-row"><span class="sp-label">Weekly Report Day</span><span class="sp-val" id="sReportDay">Monday</span></div>
   <div class="sp-section">Health</div>
-  <div class="sp-row"><span class="sp-label">Apple Watch</span><div class="toggle on" id="tWatch" onclick="toggleSetting('watch')"><div class="tknob"></div></div></div>
-  <div class="sp-row"><span class="sp-label">Left Foot Injury</span><div class="toggle on" id="tFoot" onclick="toggleSetting('foot')"><div class="tknob"></div></div></div>
+  <div class="sp-row"><span class="sp-label">Apple Watch</span><div class="toggle on" id="tWatch" onclick="toggleEq('watch')"><div class="tknob"></div></div></div>
+  <div class="sp-row"><span class="sp-label">Left Foot Injury</span><div class="toggle on" id="tFoot" onclick="toggleEq('foot')"><div class="tknob"></div></div></div>
   <div class="sp-section">System</div>
-  <div class="sp-row"><span class="sp-label">Japanese Voice</span><div class="toggle on" id="tJpVoice" onclick="toggleSetting('jpVoice')"><div class="tknob"></div></div></div>
-  <div class="sp-row"><span class="sp-label">Notifications</span><span class="sp-val">Aggressive</span></div>
-  <div class="sp-row"><span class="sp-label">Rest Days This Month</span><span class="sp-val" id="sRestDays">2</span></div>
+  <div class="sp-row"><span class="sp-label">Japanese Voice</span><div class="toggle on" id="tJpVoice" onclick="toggleEq('jpVoice')"><div class="tknob"></div></div></div>
+  <div class="sp-row"><span class="sp-label">Exhausted Days Used</span><span class="sp-val" id="sExhDays">0 / 2</span></div>
   <div class="sp-section">Equipment</div>
   <div id="eqList"></div>
   <div class="add-eq-row">
     <input class="add-eq-input" id="newEqInput" placeholder="Add equipment (e.g. Pull-up bar)">
     <button class="add-eq-btn" onclick="addEquipment()">+ ADD EQUIPMENT</button>
   </div>
+  <div class="sp-section">Danger Zone</div>
+  <button class="reset-btn" onclick="confirmReset()">⚠ RESET ALL DATA</button>
   <div style="height:30px"></div>
 </div>
 
 <!-- ONBOARDING -->
 <div class="onboard" id="onboard">
   <div class="ob-runes" id="obRunes"></div>
-
-  <!-- STEP 1: INTRO -->
   <div class="ob-step active" id="ob1">
     <div class="ob-kanji">起きろ</div>
     <div class="ob-rom">O K I R O</div>
@@ -551,8 +612,6 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
     <div class="ob-sub">Hunter. Your transformation begins now. Before the System can guide you, it must know who you are.</div>
     <button class="ob-btn" onclick="nextOb(2)">BEGIN IDENTIFICATION →</button>
   </div>
-
-  <!-- STEP 2: NAME -->
   <div class="ob-step" id="ob2">
     <div class="ob-kanji" style="font-size:48px;margin-bottom:16px">識別</div>
     <div class="ob-title">Hunter Name</div>
@@ -560,70 +619,58 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
     <input class="ob-input" id="obName" placeholder="Enter your name" maxlength="30">
     <button class="ob-btn" onclick="obSetName()">CONFIRM →</button>
   </div>
-
-  <!-- STEP 3: DOB -->
   <div class="ob-step" id="ob3">
     <div class="ob-title">Date of Birth</div>
     <div class="ob-sub">The System requires your birth date to calibrate your training.</div>
-    <input class="ob-input" id="obDob" placeholder="DD/MM/YYYY" maxlength="10">
+    <input class="ob-input" id="obDob" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric" oninput="filterDob(this)">
     <button class="ob-btn" onclick="obSetDob()">CONFIRM →</button>
   </div>
-
-  <!-- STEP 4: POSTCODE -->
   <div class="ob-step" id="ob4">
-    <div class="ob-title">Your Location</div>
-    <div class="ob-sub">Enter your postcode. The System will map your training routes and monitor your weather.</div>
-    <input class="ob-input" id="obPostcode" placeholder="Enter postcode" maxlength="10">
+    <div class="ob-title">Your Postcode</div>
+    <div class="ob-sub">The System will map your training routes and monitor weather in your area.</div>
+    <input class="ob-input" id="obPostcode" placeholder="Enter UK postcode" maxlength="10" style="text-transform:uppercase">
+    <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:8px" id="postcodeStatus"></div>
     <button class="ob-btn" onclick="obSetPostcode()">CONFIRM →</button>
   </div>
-
-  <!-- STEP 5: REPORT DAY -->
   <div class="ob-step" id="ob5">
-    <div class="ob-title">Weekly Report</div>
-    <div class="ob-sub">Which day do you want your weekly performance report?</div>
+    <div class="ob-title">Weekly Report Day</div>
+    <div class="ob-sub">Which weekday do you want your weekly performance report?</div>
     <div class="ob-days">
-      <div class="ob-day" onclick="selectReportDay(this,'Monday')">Mon</div>
-      <div class="ob-day" onclick="selectReportDay(this,'Tuesday')">Tue</div>
-      <div class="ob-day" onclick="selectReportDay(this,'Wednesday')">Wed</div>
-      <div class="ob-day" onclick="selectReportDay(this,'Thursday')">Thu</div>
-      <div class="ob-day" onclick="selectReportDay(this,'Friday')">Fri</div>
+      <div class="ob-day" onclick="selDay(this,'Monday')">Mon</div>
+      <div class="ob-day" onclick="selDay(this,'Tuesday')">Tue</div>
+      <div class="ob-day" onclick="selDay(this,'Wednesday')">Wed</div>
+      <div class="ob-day" onclick="selDay(this,'Thursday')">Thu</div>
+      <div class="ob-day" onclick="selDay(this,'Friday')">Fri</div>
     </div>
-    <button class="ob-btn" id="obDayBtn" onclick="obSetReportDay()" style="opacity:0.4">CONFIRM →</button>
+    <button class="ob-btn" id="obDayBtn" onclick="obSetDay()" style="opacity:0.4">CONFIRM →</button>
   </div>
-
-  <!-- STEP 6: DAY 0 PHOTOS -->
   <div class="ob-step" id="ob6">
-    <div class="ob-title">Day 0 — The Beginning</div>
-    <div class="ob-sub">These photos are locked forever. They are your proof of where you started. The System requires them before training begins.</div>
-    <div class="photo-slots">
-      <div style="text-align:center">
-        <div class="photo-slot" onclick="takePhoto('front')" id="photoFront"><div class="photo-slot-icon">📷</div></div>
-        <div class="photo-slot-label">FRONT</div>
+    <div class="ob-title">Sleep Schedule</div>
+    <div class="ob-sub">Set your target sleep and wake times. The System will help fix your sleep cycle.</div>
+    <div style="width:100%;max-width:300px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;background:rgba(6,6,18,0.9);border:1px solid var(--border2);border-radius:12px;padding:14px 16px">
+        <span style="font-size:13px;color:var(--text2)">Target Sleep</span>
+        <input type="time" id="obSleep" value="23:00" style="background:none;border:none;color:var(--purple2);font-size:15px;font-weight:700;outline:none;font-family:'Rajdhani',sans-serif">
       </div>
-      <div style="text-align:center">
-        <div class="photo-slot" onclick="takePhoto('side')" id="photoSide"><div class="photo-slot-icon">📷</div></div>
-        <div class="photo-slot-label">SIDE</div>
-      </div>
-      <div style="text-align:center">
-        <div class="photo-slot" onclick="takePhoto('back')" id="photoBack"><div class="photo-slot-icon">📷</div></div>
-        <div class="photo-slot-label">BACK</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(6,6,18,0.9);border:1px solid var(--border2);border-radius:12px;padding:14px 16px">
+        <span style="font-size:13px;color:var(--text2)">Target Wake</span>
+        <input type="time" id="obWake" value="07:00" style="background:none;border:none;color:var(--purple2);font-size:15px;font-weight:700;outline:none;font-family:'Rajdhani',sans-serif">
       </div>
     </div>
-    <input type="file" id="photoInput" accept="image/*" capture="user" style="display:none" onchange="handlePhoto(event)">
-    <button class="ob-btn" id="obPhotoBtn" onclick="obSetPhotos()">LOCK IN DAY 0 →</button>
-    <div class="ob-skip" onclick="obSetPhotos()">Skip for now (add later in Body Progress)</div>
+    <button class="ob-btn" onclick="obSetSleep()" style="margin-top:16px">CONFIRM →</button>
+    <div class="ob-skip" onclick="obSetSleep()">Skip — set later in Settings</div>
   </div>
-
-  <!-- STEP 7: FEEL -->
   <div class="ob-step" id="ob7">
-    <div class="ob-title">How Do You Feel Today?</div>
-    <div class="ob-sub">The System wants to know your starting energy.</div>
-    <div class="ob-feel">
-      <div class="feel-btn" onclick="selectFeel(this,'fresh')">💪<br>Fresh</div>
-      <div class="feel-btn" onclick="selectFeel(this,'tired')">😴<br>Tired</div>
-      <div class="feel-btn" onclick="selectFeel(this,'exhausted')">💀<br>Exhausted</div>
+    <div class="ob-title">Day 0 — The Beginning</div>
+    <div class="ob-sub">These photos are locked forever. Proof of where you started. The System requires them before your journey begins.</div>
+    <div class="photo-slots">
+      <div style="text-align:center"><div class="photo-slot" onclick="takePhoto('front')" id="photoFront"><div style="font-size:22px">📷</div></div><div class="photo-slot-label">FRONT</div></div>
+      <div style="text-align:center"><div class="photo-slot" onclick="takePhoto('side')" id="photoSide"><div style="font-size:22px">📷</div></div><div class="photo-slot-label">SIDE</div></div>
+      <div style="text-align:center"><div class="photo-slot" onclick="takePhoto('back')" id="photoBack"><div style="font-size:22px">📷</div></div><div class="photo-slot-label">BACK</div></div>
     </div>
-    <button class="ob-btn" id="obFeelBtn" onclick="obFinish()" style="opacity:0.4">BEGIN YOUR JOURNEY →</button>
+    <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
+    <button class="ob-btn" onclick="obSetPhotos()">LOCK IN DAY 0 →</button>
+    <div class="ob-skip" onclick="obSetPhotos()">Skip — add later in Body Progress</div>
   </div>
 </div>
 
@@ -659,64 +706,43 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
   </button>
 </nav>
 
-<!-- ═══════════════════════════════════════
-     SCREEN 1 — HOME
-═══════════════════════════════════════ -->
+<!-- SCREEN 1: HOME -->
 <div class="screen active" id="screen-home">
   <div class="scroll">
     <div class="top-hdr fu">
-      <div class="hdr-left">
-        <div class="app-wordmark">ARISE</div>
-        <div class="app-sub">起きろ · システム起動中</div>
-      </div>
-      <div class="hdr-menu" onclick="openSettings()">
-        <div class="hdr-menu-line"></div>
-        <div class="hdr-menu-line"></div>
-        <div class="hdr-menu-line"></div>
-      </div>
+      <div><div class="app-wordmark">ARISE</div><div class="app-sub">起きろ · システム起動中</div></div>
+      <div class="hdr-menu" onclick="openSettings()"><div class="hdr-menu-line"></div><div class="hdr-menu-line"></div><div class="hdr-menu-line"></div></div>
     </div>
-
-    <!-- DAY CHOICE / ACTIVE STATE -->
+    <!-- 24HR TIMER -->
+    <div class="day-timer-section fu">
+      <div class="dt-top">
+        <div><div class="dt-day" id="dtDay">1</div><div class="dt-day-label">Day</div></div>
+        <div class="dt-right"><div class="dt-rank" id="dtRank">E-RANK</div><div class="dt-week" id="dtWeek">WEEK 1</div></div>
+      </div>
+      <div class="dt-time" id="dtTime">24:00:00</div>
+      <div class="dt-bar-wrap"><div class="dt-bar" id="dtBar" style="width:100%;background:var(--purple2)"></div></div>
+      <div class="dt-status" id="dtStatus">Quest Pending</div>
+    </div>
+    <!-- DAY CHOICE -->
     <div id="dayChoiceArea"></div>
-
-    <!-- WEATHER -->
-    <div class="weather-strip fu" id="weatherStrip">
-      <div class="wx-left">
-        <div class="wx-icon" id="wxIcon">🌥️</div>
-        <div>
-          <div class="wx-temp" id="wxTemp">--°C</div>
-          <div class="wx-desc" id="wxDesc">Loading weather...</div>
-        </div>
-      </div>
-      <div class="wx-right" id="wxRight">Training<br>conditions</div>
-    </div>
-
     <!-- LICENSE CARD -->
-    <div class="license-card fu" onclick="openSettings()">
+    <div class="license-card e-rank fu" id="licenseCard" onclick="openSettings()">
       <div class="lc-top">
-        <div class="lc-photo" id="lcPhoto">👤</div>
+        <div class="lc-photo" id="lcPhoto" onclick="event.stopPropagation();takeProfilePhoto()">👤</div>
         <div class="lc-info">
           <div class="lc-name" id="lcName">Hunter</div>
           <div class="lc-title" id="lcTitle">The Weakest... For Now</div>
           <div class="lc-dob" id="lcDob"></div>
         </div>
-        <div class="lc-level">
-          <div>
-            <div class="lc-lvl-label">LVL</div>
-            <div class="lc-lvl-num" id="lcLevel">1</div>
-          </div>
-        </div>
+        <div class="lc-level-wrap"><div class="lc-lvl-label">LVL</div><div class="lc-lvl-num" id="lcLevel">1</div></div>
       </div>
-      <div class="lc-rank-row">
-        <div class="lc-rank" id="lcRank">E-RANK</div>
-        <div class="lc-days" id="lcDays">Day 0</div>
-      </div>
+      <div class="lc-rank-row"><div class="lc-rank" id="lcRank">E-RANK</div><div class="lc-days" id="lcDays">Day 0</div></div>
       <div class="xp-row">
         <div class="xp-hdr"><span class="xp-lbl">Experience</span><span class="xp-val"><span id="xpCur">0</span> / <span id="xpMax">100</span> XP</span></div>
         <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
       </div>
     </div>
-
+    <input type="file" id="profilePhotoInput" accept="image/*" capture="user" style="display:none" onchange="handleProfilePhoto(event)">
     <!-- STATUS WINDOW -->
     <div class="status-window fu" onclick="showScreen('progress')">
       <div class="sw-title">— Status Window —</div>
@@ -727,108 +753,88 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
         <div class="sw-stat comb"><div class="sw-icon">⚔️</div><div class="sw-right"><div class="sw-name">COMBAT</div><div class="sw-val" id="swComb">0</div><div class="sw-bar"><div class="sw-fill" id="swCombB" style="width:0%"></div></div></div></div>
       </div>
     </div>
-
     <!-- WATER -->
-    <div class="sec-hdr fu"><div class="sec-line"></div><div class="sec-title">Water Today</div><div class="sec-line"></div></div>
+    <div class="sec-hdr fu"><div class="sec-line"></div><div class="sec-title">Hydration</div><div class="sec-line"></div></div>
     <div class="water-card fu">
-      <div class="wt-hdr"><span class="wt-title">💧 Hydration</span><span class="wt-val"><span id="waterCur">0</span> / <span id="waterGoal">3</span>L</span></div>
+      <div class="wt-hdr"><span class="wt-title">💧 Water Today</span><span class="wt-val"><span id="waterCur">0.0</span> / <span id="waterGoal">3</span>L</span></div>
       <div class="wt-track"><div class="wt-fill" id="waterFill" style="width:0%"></div></div>
       <div class="wt-btns">
         <button class="wt-btn" onclick="addWater(0.25)">+250ml</button>
         <button class="wt-btn" onclick="addWater(0.5)">+500ml</button>
         <button class="wt-btn" onclick="addWater(1)">+1L</button>
-        <button class="wt-btn" onclick="resetWater()" style="color:rgba(51,204,255,0.4)">Reset</button>
+        <button class="wt-btn" onclick="resetWater()" style="color:rgba(51,204,255,0.3)">Reset</button>
       </div>
     </div>
-
     <!-- STREAK -->
     <div class="sec-hdr fu"><div class="sec-line"></div><div class="sec-title">Weekly Streak</div><div class="sec-line"></div></div>
     <div class="streak-card fu">
       <div class="streak-days" id="streakDays"></div>
       <div class="streak-footer">
         <div><div class="streak-num" id="streakNum">0</div><div class="streak-lbl">Day Streak</div></div>
-        <div class="streak-right"><div class="streak-msg" id="streakMsg">Begin your journey, Hunter</div><div class="streak-jp" id="streakJp">起きろ</div></div>
+        <div><div class="streak-msg" id="streakMsg">Begin your journey</div><div class="streak-jp" id="streakJp">起きろ</div></div>
       </div>
     </div>
-
     <!-- ACCOUNTABILITY -->
     <div class="sec-hdr fu"><div class="sec-line"></div><div class="sec-title">The System Speaks</div><div class="sec-line"></div></div>
-    <div class="acc-card fu">
-      <div class="acc-jp" id="accJp">システムより</div>
-      <div class="acc-msg" id="accMsg">The System is watching, Hunter. Every choice you make from this moment builds or destroys the warrior you could become.</div>
-    </div>
-
-    <!-- BOSS PREVIEW -->
+    <div class="acc-card fu"><div class="acc-jp" id="accJp">システムより</div><div class="acc-msg" id="accMsg">The System is watching, Hunter.</div></div>
+    <!-- BOSS -->
     <div class="sec-hdr fu"><div class="sec-line"></div><div class="sec-title">Weekly Boss</div><div class="sec-line"></div></div>
     <div class="boss-prev fu" onclick="showScreen('boss')">
-      <div class="bp-hdr"><span class="bp-badge"><span class="bp-dot"></span>Boss Active</span><span class="bp-timer" id="bpTimer">7 days left</span></div>
+      <div class="bp-hdr"><span class="bp-badge"><span class="bp-dot"></span>Boss Active</span><span style="font-size:10px;color:rgba(255,51,68,0.55)" id="bpTimer">7 days left</span></div>
       <div class="bp-name" id="bpName">The Awakening Trial</div>
-      <div class="bp-desc" id="bpDesc">Complete all daily quests this week to defeat your first dungeon boss.</div>
+      <div class="bp-desc" id="bpDesc">Complete all daily quests this week.</div>
       <span class="bp-tag">+300 XP</span><span class="bp-tag">Shadow Soldier</span>
     </div>
-
-    <!-- SHADOW PREVIEW -->
+    <!-- SHADOW -->
     <div class="sec-hdr fu"><div class="sec-line"></div><div class="sec-title">Shadow Army</div><div class="sec-line"></div></div>
     <div class="shadow-prev fu" onclick="showScreen('shadow')">
-      <div class="sp-count"><span id="spCount">0</span> / 100 Soldiers Extracted</div>
+      <div style="font-size:11px;color:var(--text3);letter-spacing:1px"><span id="spCount">0</span> / 100 Soldiers Extracted</div>
       <div class="sp-row" id="spRow"></div>
     </div>
-
-    <!-- TODAY QUESTS PREVIEW -->
+    <!-- QUEST PREVIEW -->
     <div class="sec-hdr fu"><div class="sec-line"></div><div class="sec-title">Today's Quests</div><div class="sec-line"></div></div>
     <div id="homeQList"></div>
-    <div style="padding:4px 16px 8px"><button style="width:100%;padding:13px;border-radius:12px;border:1px solid var(--border2);background:rgba(110,80,255,0.06);color:var(--purple3);font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer" onclick="showScreen('quests')">VIEW ALL QUESTS →</button></div>
+    <div style="padding:4px 16px 8px"><button style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border2);background:rgba(110,80,255,0.05);color:var(--purple3);font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer" onclick="showScreen('quests')">VIEW ALL QUESTS →</button></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     SCREEN 2 — QUESTS
-═══════════════════════════════════════ -->
+<!-- SCREEN 2: QUESTS -->
 <div class="screen" id="screen-quests">
   <div class="scroll">
     <div class="top-hdr">
       <div><div class="app-wordmark" style="font-size:20px;letter-spacing:5px">QUESTS</div><div class="app-sub" id="questDateLbl"></div></div>
       <div style="text-align:right"><div style="font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Today XP</div><div style="font-family:'Cinzel',serif;font-size:18px;color:var(--purple3)" id="questXP">+0</div></div>
     </div>
-    <div style="margin:14px 16px 0;background:var(--panel);border:0.5px solid var(--border);border-radius:12px;padding:12px 16px">
-      <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-weight:700">Quest Progress</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <div style="margin:12px 16px 0;background:rgba(6,6,18,0.85);border:0.5px solid var(--border);border-radius:12px;padding:12px 14px;backdrop-filter:blur(8px)">
+      <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-weight:700">Quest Progress</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
         <span style="font-size:12px;color:var(--text2)" id="questProgressTxt">0 / 7 Complete</span>
         <span style="font-size:10px;color:var(--text3)" id="weekLabel"></span>
       </div>
-      <div style="height:5px;background:rgba(110,80,255,0.07);border-radius:3px;overflow:hidden"><div style="height:100%;background:linear-gradient(90deg,var(--purple),var(--purple3));border-radius:3px;transition:width 0.5s" id="questProgressBar"></div></div>
+      <div style="height:4px;background:rgba(110,80,255,0.07);border-radius:2px;overflow:hidden"><div style="height:100%;background:linear-gradient(90deg,var(--purple),var(--purple3));border-radius:2px;transition:width 0.5s" id="questProgressBar"></div></div>
     </div>
-    <div id="fullQuestList" style="margin-top:10px"></div>
+    <!-- GPS + IO BUTTONS -->
+    <div class="gps-card" style="margin-top:8px">
+      <div><div class="gps-label">GPS Distance</div><div class="gps-status" id="gpsStatus">Select outdoor or indoor</div></div>
+      <div class="gps-val" id="gpsVal">0.00 km</div>
+    </div>
+    <div class="io-row">
+      <button class="io-btn active" id="outdoorBtn" onclick="setOutdoor()">📍 OUTDOOR</button>
+      <button class="io-btn" id="indoorBtn" onclick="setIndoor()">🏠 INDOOR</button>
+    </div>
+    <div id="fullQuestList" style="margin-top:6px"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     SCREEN 3 — PROGRESS
-═══════════════════════════════════════ -->
+<!-- SCREEN 3: PROGRESS -->
 <div class="screen" id="screen-progress">
   <div class="scroll">
     <div class="top-hdr"><div><div class="app-wordmark" style="font-size:20px;letter-spacing:5px">PROGRESS</div><div class="app-sub">ステータス · 進歩</div></div></div>
     <div class="sec-hdr"><div class="sec-line"></div><div class="sec-title">Attributes</div><div class="sec-line"></div></div>
-    <div class="stat-detail">
-      <div class="sd-hdr"><div class="sd-icon">💪</div><div><div class="sd-name" style="color:#ff9999">Strength</div><div class="sd-sub">Push-ups · Sit-ups · Pull-ups</div></div><div class="sd-val" style="color:#ff9999" id="sdStr">0</div></div>
-      <div class="sd-bigbar"><div class="sd-bigfill" style="background:#ff9999" id="sdStrB"></div></div>
-      <div class="sd-desc">Raw physical power. Every push-up, sit-up and pull-up builds this. At S-Rank you will do 100 of each without stopping — daily.</div>
-    </div>
-    <div class="stat-detail">
-      <div class="sd-hdr"><div class="sd-icon">💨</div><div><div class="sd-name" style="color:var(--cyan)">Agility</div><div class="sd-sub">Running · Stretching · Footwork</div></div><div class="sd-val" style="color:var(--cyan)" id="sdAgi">0</div></div>
-      <div class="sd-bigbar"><div class="sd-bigfill" style="background:var(--cyan)" id="sdAgiB"></div></div>
-      <div class="sd-desc">Speed, flexibility and coordination. Built by running and stretching every day. At S-Rank you run 16km and move like a trained fighter.</div>
-    </div>
-    <div class="stat-detail">
-      <div class="sd-hdr"><div class="sd-icon">❤️</div><div><div class="sd-name" style="color:var(--green)">Vitality</div><div class="sd-sub">Plank · Long runs · Endurance</div></div><div class="sd-val" style="color:var(--green)" id="sdVit">0</div></div>
-      <div class="sd-bigbar"><div class="sd-bigfill" style="background:var(--green)" id="sdVitB"></div></div>
-      <div class="sd-desc">How long you can keep going. Your stamina and recovery speed. The difference between stopping after 1km and running 16km without breaking.</div>
-    </div>
-    <div class="stat-detail">
-      <div class="sd-hdr"><div class="sd-icon">⚔️</div><div><div class="sd-name" style="color:var(--gold2)">Combat</div><div class="sd-sub">Shadow boxing · Combos · Kicks</div></div><div class="sd-val" style="color:var(--gold2)" id="sdComb">0</div></div>
-      <div class="sd-bigbar"><div class="sd-bigfill" style="background:var(--gold2)" id="sdCombB"></div></div>
-      <div class="sd-desc">Your fighting skill and striking power. Street fighter style. Built through daily shadow boxing. At S-Rank every part of your body is a weapon.</div>
-    </div>
+    <div class="stat-detail"><div class="sd-hdr"><div class="sd-icon">💪</div><div><div class="sd-name" style="color:#ff9999">Strength</div><div class="sd-sub">Push-ups · Sit-ups · Pull-ups</div></div><div class="sd-val" style="color:#ff9999" id="sdStr">0</div></div><div class="sd-bigbar"><div class="sd-bigfill" style="background:#ff9999" id="sdStrB"></div></div><div class="sd-desc">Raw physical power. At S-Rank you will do 100 of each without stopping — daily.</div></div>
+    <div class="stat-detail"><div class="sd-hdr"><div class="sd-icon">💨</div><div><div class="sd-name" style="color:var(--cyan)">Agility</div><div class="sd-sub">Running · Stretching · Footwork</div></div><div class="sd-val" style="color:var(--cyan)" id="sdAgi">0</div></div><div class="sd-bigbar"><div class="sd-bigfill" style="background:var(--cyan)" id="sdAgiB"></div></div><div class="sd-desc">Speed and flexibility. At S-Rank you run 16km daily and move like a trained fighter.</div></div>
+    <div class="stat-detail"><div class="sd-hdr"><div class="sd-icon">❤️</div><div><div class="sd-name" style="color:var(--green)">Vitality</div><div class="sd-sub">Plank · Endurance · Stamina</div></div><div class="sd-val" style="color:var(--green)" id="sdVit">0</div></div><div class="sd-bigbar"><div class="sd-bigfill" style="background:var(--green)" id="sdVitB"></div></div><div class="sd-desc">How long you keep going. The difference between stopping after 1km and running 16km without breaking.</div></div>
+    <div class="stat-detail"><div class="sd-hdr"><div class="sd-icon">⚔️</div><div><div class="sd-name" style="color:var(--gold2)">Combat</div><div class="sd-sub">Shadow boxing · Combinations · Kicks</div></div><div class="sd-val" style="color:var(--gold2)" id="sdComb">0</div></div><div class="sd-bigbar"><div class="sd-bigfill" style="background:var(--gold2)" id="sdCombB"></div></div><div class="sd-desc">Your fighting skill. Street fighter style. At S-Rank every part of your body is a weapon.</div></div>
     <div class="sec-hdr"><div class="sec-line"></div><div class="sec-title">Rank Progression</div><div class="sec-line"></div></div>
     <div class="rank-road" id="rankRoad"></div>
     <div class="sec-hdr"><div class="sec-line"></div><div class="sec-title">Personal Bests</div><div class="sec-line"></div></div>
@@ -836,78 +842,49 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     SCREEN 4 — SHADOW ARMY
-═══════════════════════════════════════ -->
+<!-- SCREEN 4: SHADOW ARMY -->
 <div class="screen" id="screen-shadow">
   <div class="scroll">
-    <div class="top-hdr">
-      <div><div class="app-wordmark" style="font-size:18px;letter-spacing:4px">SHADOW ARMY</div><div class="app-sub">影の軍隊</div></div>
-      <div style="text-align:right"><div style="font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Soldiers</div><div style="font-family:'Cinzel',serif;font-size:20px;color:var(--purple3)" id="armyCount">0</div></div>
-    </div>
-    <div style="padding:6px 18px 14px;font-size:12px;color:var(--text3);line-height:1.8">Each shadow is extracted from a defeated challenge. Go outside. Take photos at real locations. Beat bosses. Maintain your streak. Grow your army to 100. <span style="font-family:'Noto Sans JP',sans-serif">起きろ</span>.</div>
+    <div class="top-hdr"><div><div class="app-wordmark" style="font-size:18px;letter-spacing:4px">SHADOW ARMY</div><div class="app-sub">影の軍隊</div></div><div style="text-align:right"><div style="font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Soldiers</div><div style="font-family:'Cinzel',serif;font-size:20px;color:var(--purple3)" id="armyCount">0</div></div></div>
+    <div style="padding:6px 18px 14px;font-size:12px;color:var(--text3);line-height:1.8">Shadows extracted from defeated challenges. Beat bosses. Maintain your streak. Grow your army to 100. <span style="font-family:'Noto Sans JP',sans-serif">起きろ</span>.</div>
     <div class="army-grid" id="armyGrid"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     SCREEN 5 — BOSS BATTLE
-═══════════════════════════════════════ -->
+<!-- SCREEN 5: BOSS BATTLE -->
 <div class="screen" id="screen-boss">
   <div class="scroll">
     <div class="top-hdr"><div><div class="app-wordmark" style="font-size:18px;letter-spacing:4px">BOSS BATTLE</div><div class="app-sub">ボス戦</div></div></div>
     <div class="boss-full-card">
-      <span class="bf-emoji" id="bfEmoji">👹</span>
-      <div class="bf-name" id="bfName">The Awakening Trial</div>
-      <div class="bf-rank" id="bfRank">WEEK 1 BOSS · E-RANK DUNGEON</div>
+      <span class="bf-emoji" id="bfEmoji">👁️</span>
+      <div class="bf-name" id="bfName2">The Awakening Trial</div>
+      <div class="bf-rank" id="bfRank">WEEK 1 BOSS · E-RANK</div>
       <div class="bf-hp"><div class="bf-hp-fill" id="bfHpFill" style="width:100%"></div></div>
-      <div class="bf-desc" id="bfDesc">Your first test as a Hunter. The System demands consistency above all else. Prove you can show up every single day this week and the dungeon will fall.</div>
-      <div class="bf-reqs" id="bfReqs">
-        <div class="bf-req-title">Requirements to defeat</div>
-      </div>
-      <div style="margin-bottom:18px" id="bfRewards"><span class="bp-tag">+300 XP</span><span class="bp-tag">+2 All Stats</span><span class="bp-tag">Shadow Soldier</span></div>
+      <div class="bf-desc" id="bfDesc2">Your first test as a Hunter.</div>
+      <div class="bf-reqs" id="bfReqs"><div class="bf-req-title">Requirements to defeat</div></div>
+      <div style="margin-bottom:18px" id="bfRewards"><span class="bp-tag">+300 XP</span><span class="bp-tag">Shadow Soldier</span></div>
       <button class="bf-engage" onclick="engageBoss()">ENGAGE BOSS →</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     SCREEN 6 — MISSION LOG
-═══════════════════════════════════════ -->
+<!-- SCREEN 6: MISSION LOG -->
 <div class="screen" id="screen-log">
   <div class="scroll">
     <div class="top-hdr"><div><div class="app-wordmark" style="font-size:18px;letter-spacing:4px">MISSION LOG</div><div class="app-sub">任務記録</div></div></div>
-    <div class="sec-hdr"><div class="sec-line"></div><div class="sec-title">Journal Entry</div><div class="sec-line"></div></div>
-    <div class="journal-input-box">
-      <div class="ji-title">Daily Journal</div>
-      <div class="ji-q">How did you feel today, Hunter?</div>
-      <textarea class="ji-textarea" id="journalInput" placeholder="Write one honest sentence about today..."></textarea>
-      <button class="ji-save" onclick="saveJournal()">SAVE ENTRY</button>
-    </div>
+    <div class="sec-hdr"><div class="sec-line"></div><div class="sec-title">Daily Journal</div><div class="sec-line"></div></div>
+    <div class="journal-input-box"><div class="ji-title">Journal Entry</div><div class="ji-q">How did you feel today, Hunter?</div><textarea class="ji-textarea" id="journalInput" placeholder="Write one honest sentence..."></textarea><button class="ji-save" onclick="saveJournal()">SAVE ENTRY</button></div>
     <div class="sec-hdr"><div class="sec-line"></div><div class="sec-title">Mission History</div><div class="sec-line"></div></div>
     <div id="missionLog"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     SCREEN 7 — BODY PROGRESS
-═══════════════════════════════════════ -->
+<!-- SCREEN 7: BODY -->
 <div class="screen" id="screen-body">
   <div class="scroll">
     <div class="top-hdr"><div><div class="app-wordmark" style="font-size:20px;letter-spacing:4px">BODY</div><div class="app-sub">身体の記録</div></div></div>
-    <div class="sec-hdr"><div class="sec-line"></div><div class="sec-title">Photo Comparison</div><div class="sec-line"></div></div>
-    <div class="photo-compare">
-      <div class="pc-title">DAY 0 vs TODAY</div>
-      <div class="pc-row">
-        <div class="pc-slot" id="pcDay0"><div class="pc-placeholder">Day 0<br>Not set</div></div>
-        <div class="pc-slot" id="pcToday">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="takeProgressPhoto()">
-            <div style="font-size:24px">📷</div>
-            <div style="font-size:9px;color:var(--text3);letter-spacing:1px">ADD PHOTO</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="sec-hdr"><div class="sec-line"></div><div class="sec-title">Day 0 vs Today</div><div class="sec-line"></div></div>
+    <div class="photo-compare"><div class="pc-title">TRANSFORMATION</div><div class="pc-row"><div class="pc-slot" id="pcDay0"><div style="font-size:11px;color:var(--text3);text-align:center;padding:8px;letter-spacing:1px">Day 0<br>Not set</div></div><div class="pc-slot" id="pcToday"><div style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer" onclick="takeProgressPhoto()"><div style="font-size:22px">📷</div><div style="font-size:9px;color:var(--text3);letter-spacing:1px">ADD PHOTO</div></div></div></div></div>
     <input type="file" id="progressPhotoInput" accept="image/*" capture="user" style="display:none" onchange="handleProgressPhoto(event)">
     <div class="sec-hdr"><div class="sec-line"></div><div class="sec-title">Measurements</div><div class="sec-line"></div></div>
     <div class="metric-card"><div><div class="metric-lbl">Weight</div><div><span class="metric-val" id="mWeight">--</span><span class="metric-unit">kg</span></div></div><div class="metric-change" id="mWeightC">Not logged</div></div>
@@ -926,24 +903,26 @@ input,button,select,textarea{font-family:'Rajdhani',sans-serif}
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
-const SK='arise_v3';
+const SK='arise_v41';
 let S={
   setup:false,
-  hunter:{name:'',dob:'',postcode:'',targetWeight:null,sleepTime:'',reportDay:'Monday',profilePhoto:null,day0Photos:{front:null,side:null,back:null},todayFeel:'fresh'},
+  hunter:{name:'',dob:'',postcode:'',targetWeight:null,sleepTarget:'23:00',wakeTarget:'07:00',reportDay:'Monday',profilePhoto:null,day0Photos:{front:null,side:null,back:null}},
   level:1,xp:0,rank:'E-RANK',totalDays:0,startDate:null,
   stats:{str:0,agi:0,vit:0,combat:0},
   streak:0,streakDays:[false,false,false,false,false,false,false],
-  restDays:2,
   shadows:[],
   body:{weight:null,belly:null,chest:null,waist:null,prevWeight:null,prevBelly:null,prevChest:null,prevWaist:null,progressPhoto:null},
   quests:[],questLog:[],journalEntries:[],
   equipment:[],
-  dayMode:null,dayStarted:false,dayDate:'',
+  dayMode:null,dayStarted:false,dayDate:'',feelingToday:null,feelingDate:'',
   water:0,waterGoal:3,
   bests:{run:null,pushup:null,plank:null,situp:null},
-  weekNum:1,bossProgress:0,bossDefeated:false,
+  weekNum:1,bossProgress:0,
   punishmentActive:false,missedDays:0,
-  week:1
+  week:1,isIndoor:false,
+  lastResetDate:'',workStartTime:null,
+  gpsDistance:0,exhaustedUsedThisMonth:0,lastMonth:-1,
+  exhaustedReason:null,warningsFired:[]
 };
 
 function load(){try{const d=localStorage.getItem(SK);if(d)S={...S,...JSON.parse(d)}}catch(e){}}
@@ -952,57 +931,93 @@ function save(){try{localStorage.setItem(SK,JSON.stringify(S))}catch(e){}}
 // ═══════════════════════════════════════
 // QUEST DATA
 // ═══════════════════════════════════════
-const QUEST_TEMPLATE=[
-  {id:'run',name:'Walk / Run',icon:'🏃',stat:'agi',
-   weeks:{1:{reps:'0.5 km walk',dur:420},2:{reps:'0.75 km walk/jog',dur:480},3:{reps:'1 km run',dur:540},4:{reps:'1 km run',dur:540}},
-   inst:['Start with slow walking — no rush — just move','Keep your back straight and head up','Breathe in through nose, out through mouth','Let your arms swing naturally at 90 degrees','If you feel tired, walk — do not stop completely'],
-   mistake:'Do not hunch your shoulders or look down at your feet — chest open, eyes forward',xp:25},
+const QT=[
+  {id:'run',name:'Walk / Run',icon:'🏃',stat:'agi',outdoor:true,
+   weeks:{1:{reps:'0.5km walk',dur:420},2:{reps:'0.75km jog',dur:480},3:{reps:'1km run',dur:540},4:{reps:'1km run',dur:540}},
+   indoorAlt:{name:'High Knees',icon:'🦵',
+    rankReps:{E:{reps:'3 rounds × 30 sec',dur:120},D:{reps:'5 rounds × 45 sec',dur:285},C:{reps:'8 rounds × 60 sec',dur:560},B:{reps:'10 rounds × 90 sec',dur:1000},A:{reps:'12 rounds × 90 sec',dur:1200},S:{reps:'15 rounds × 120 sec',dur:2100}}},
+   inst:['Start with slow walking — no rush','Keep back straight and head up','Breathe in through nose, out through mouth','Let arms swing naturally','If tired — walk, never stop completely'],
+   mistake:'Do not hunch shoulders — chest open, eyes forward',xp:25},
   {id:'pushup',name:'Push-ups',icon:'💪',stat:'str',
    weeks:{1:{reps:'5 reps',dur:60},2:{reps:'8 reps',dur:80},3:{reps:'10 reps',dur:90},4:{reps:'10 reps',dur:90}},
-   inst:['Place hands slightly wider than shoulder width','Keep your body in a perfectly straight line','Lower your chest to just above the floor','Push back up — exhale on the way up','Keep your core tight throughout'],
-   mistake:'Do not let your hips sag or rise — one straight line from head to heels',xp:15},
+   inst:['Hands slightly wider than shoulder width','Keep body in perfectly straight line','Lower chest to just above floor','Push up — exhale on the way','Core tight throughout'],
+   mistake:'Do not let hips sag or rise — one straight line',xp:15},
   {id:'situp',name:'Sit-ups',icon:'🔥',stat:'str',
    weeks:{1:{reps:'5 reps',dur:50},2:{reps:'8 reps',dur:70},3:{reps:'10 reps',dur:80},4:{reps:'10 reps',dur:80}},
-   inst:['Lie flat — knees bent — feet flat on floor','Cross arms over your chest','Exhale as you lift your upper body toward knees','Lower slowly — control the descent','Never use momentum — slow and controlled'],
-   mistake:'Do not pull your neck or jerk up — your core does the work, not your head',xp:15},
+   inst:['Lie flat — knees bent — feet flat','Cross arms over chest','Exhale as you lift toward knees','Lower slowly — control descent','Never use momentum'],
+   mistake:'Do not pull your neck — core does the work',xp:15},
   {id:'wallpush',name:'Wall Push-aways',icon:'🧱',stat:'str',
    weeks:{1:{reps:'5 reps',dur:45},2:{reps:'8 reps',dur:60},3:{reps:'10 reps',dur:70},4:{reps:'10 reps',dur:70}},
-   inst:['Stand arms length from a wall','Place palms flat at chest height','Lean toward the wall bending elbows','Push back explosively to start','This builds your pull-up muscles'],
-   mistake:'Do not let your hips push forward — body stays in one straight line',xp:10},
+   inst:['Stand arms length from wall','Palms flat at chest height','Lean toward wall bending elbows','Push back explosively','Builds pull-up muscles'],
+   mistake:'Do not let hips push forward — stay straight',xp:10},
   {id:'plank',name:'Plank Hold',icon:'⚡',stat:'vit',
    weeks:{1:{reps:'10 seconds',dur:15},2:{reps:'15 seconds',dur:20},3:{reps:'20 seconds',dur:25},4:{reps:'20 seconds',dur:25}},
-   inst:['Get into push-up position then lower onto forearms','Elbows directly under shoulders','One straight line from head to heels','Squeeze everything — core, glutes, quads','Breathe steadily — never hold your breath'],
-   mistake:'Do not let your hips rise or sag — the straight line is everything',xp:20},
+   inst:['Lower onto forearms — elbows under shoulders','One straight line head to heels','Squeeze core, glutes, quads','Breathe steadily — never hold breath'],
+   mistake:'Do not let hips rise or sag — the straight line is everything',xp:20},
   {id:'stretch',name:'Full Body Stretch',icon:'🧘',stat:'agi',
    weeks:{1:{reps:'3 minutes',dur:180},2:{reps:'4 minutes',dur:240},3:{reps:'5 minutes',dur:300},4:{reps:'5 minutes',dur:300}},
-   inst:['Neck rolls — 5 circles each direction slowly','Shoulder cross — pull arm across chest 20 seconds each','Hip flexor lunge — sink hips down 30 seconds each side','Hamstring — seated reach for toes 30 seconds','Lower back — on back pull both knees to chest 30 seconds'],
-   mistake:'Never stretch cold muscles — always stretch after all other exercises',xp:10},
+   inst:['Neck rolls — 5 circles each direction','Shoulder cross — 20 seconds each arm','Hip flexor lunge — 30 seconds each side','Hamstring — reach toes 30 seconds','Lower back — knees to chest 30 seconds'],
+   mistake:'Never stretch cold — always after other exercises',xp:10},
   {id:'combat',name:'Shadow Boxing',icon:'⚔️',stat:'combat',
-   weeks:{1:{reps:'1 round — Stance + Jab + Guard',dur:60},2:{reps:'2 rounds — Jab-Cross',dur:90},3:{reps:'2 rounds — Jab-Cross-Guard',dur:100},4:{reps:'2 rounds — Jab-Cross-Guard',dur:100}},
-   inst:['Feet shoulder width — dominant foot slightly back','Raise fists to guard your face — chin slightly down','JAB — quick straight punch with front hand — snap back fast','CROSS — powerful rear hand punch — rotate hip into it','GUARD — both hands back to face. Repeat the combination'],
-   mistake:'Never drop your guard hand when punching — both hands protect you at all times',xp:15}
+   weeks:{1:{reps:'1 round — Stance + Jab',dur:60},2:{reps:'2 rounds — Jab-Cross',dur:90},3:{reps:'2 rounds — Jab-Cross-Guard',dur:100},4:{reps:'2 rounds — Jab-Cross-Guard',dur:100}},
+   inst:['Feet shoulder width — dominant foot slightly back','Raise fists to guard face','JAB — quick front hand — snap back','CROSS — rear hand — rotate hip into it','GUARD — both hands back. Repeat'],
+   mistake:'Never drop guard hand — both hands protect you',xp:15}
 ];
 
-function getWeekKey(){
-  const w=Math.min(S.week||1,4);
-  return w<=1?'1':w===2?'2':w===3?'3':'4';
-}
+const HK_INST=['Stand tall with feet hip width apart','Drive right knee up toward chest','As it comes down drive left knee up','Pump arms in rhythm with knees','Keep core tight and back straight'];
+const HK_MISTAKE='Do not let back arch — stay upright and tight throughout';
+
+function getWK(){return String(Math.min(S.week||1,4));}
 
 function initQuests(){
-  const wk=getWeekKey();
-  S.quests=QUEST_TEMPLATE.map(q=>({
-    id:q.id,name:q.name,icon:q.icon,stat:q.stat,xp:q.xp,
-    reps:q.weeks[wk].reps,dur:q.weeks[wk].dur,
-    inst:q.inst,mistake:q.mistake,done:false
-  }));
+  const wk=getWK();
+  S.quests=QT.map(q=>{
+    let name,icon,reps,dur,inst,mistake;
+    if(q.outdoor&&S.isIndoor){
+      const alt=q.indoorAlt;
+      const rankReps=alt.rankReps[S.rank.replace('-RANK','')]||alt.rankReps['E'];
+      name=alt.name;icon='🦵';reps=rankReps.reps;dur=rankReps.dur;
+      inst=HK_INST;mistake=HK_MISTAKE;
+    }else{
+      name=q.name;icon=q.icon;reps=q.weeks[wk].reps;dur=q.weeks[wk].dur;
+      inst=q.inst;mistake=q.mistake;
+    }
+    return{id:q.id,name,icon,stat:q.stat,xp:q.xp,reps,dur,inst,mistake,done:false};
+  });
+  // Sick — only stretch
+  if(S.dayMode==='exhausted'&&S.exhaustedReason==='sick'){
+    S.quests=S.quests.filter(q=>q.id==='stretch');
+    S.quests[0].reps='10 minutes gentle';S.quests[0].dur=600;
+  }else if(S.dayMode==='exhausted'&&S.exhaustedReason==='sore'){
+    S.quests=S.quests.filter(q=>['stretch','plank'].includes(q.id));
+  }
 }
 
 // ═══════════════════════════════════════
-// ACCOUNTABILITY MESSAGES
+// SHADOW SOLDIERS — MANGA ORDER
 // ═══════════════════════════════════════
-const ACC_MSGS=[
+const SHADOWS=[
+  {name:'Kasaka',icon:'🐍',role:'Scout',unlock:'Week 1'},
+  {name:'Greed',icon:'💀',role:'Warrior',unlock:'Week 2'},
+  {name:'Iron',icon:'🛡️',role:'Knight',unlock:'Week 3'},
+  {name:'Tank',icon:'⚔️',role:'Vanguard',unlock:'Week 4'},
+  {name:'Igris',icon:'👑',role:'Marshal',unlock:'Month 1 Boss'},
+  {name:'Jima',icon:'🔱',role:'Soldier',unlock:'30 Day Streak'},
+  {name:'Tusk',icon:'🦷',role:'Beast',unlock:'D-Rank'},
+  {name:'Fangs',icon:'🐺',role:'Hunter',unlock:'60 Day Streak'},
+  {name:'Beru',icon:'🐜',role:'General',unlock:'C-Rank'},
+  {name:'Kaisel',icon:'🐉',role:'Dragon',unlock:'B-Rank'},
+  {name:'Kamish',icon:'⚡',role:'Wyvern',unlock:'100 Day Streak'},
+  {name:'Archon',icon:'🌑',role:'Shadow',unlock:'A-Rank'},
+  {name:'Ashborn',icon:'👁️',role:'Monarch',unlock:'S-Rank'}
+];
+
+// ═══════════════════════════════════════
+// ACCOUNTABILITY
+// ═══════════════════════════════════════
+const MSGS=[
   {jp:'システムより',msg:'The person you are becoming would thank you for not stopping today.'},
-  {jp:'警告',msg:'Weakness is a choice. Every time you skip, you are choosing to stay exactly where you are.'},
+  {jp:'警告',msg:'Weakness is a choice. Every time you skip you choose to stay exactly where you are.'},
   {jp:'なぜ始めたか',msg:'You started because you were tired of who you were. Do not go back to that person.'},
   {jp:'システムより',msg:'The old you would have already quit. Every day you show up is proof he is gone.'},
   {jp:'覚えているか',msg:'Remember the body you showed the System. That is still the target. Nothing has changed.'},
@@ -1011,34 +1026,112 @@ const ACC_MSGS=[
   {jp:'なぜ始めたか',msg:'You made a promise to yourself. The System heard it. It will not forget.'},
   {jp:'警告',msg:'Every rep you do now is a debt your future self does not have to pay.'},
   {jp:'システムより',msg:'The road does not come to you. You go to it. Every single day.'},
-  {jp:'覚えているか',msg:'In 12 months from now you will either thank yourself for starting or regret that you stopped. Choose.'},
-  {jp:'システムより',msg:'Sung Jin-Woo did not become the Shadow Monarch by waiting to feel ready. Neither will you.'}
+  {jp:'覚えているか',msg:'In 12 months you will either thank yourself for starting or regret that you stopped. Choose.'},
+  {jp:'システムより',msg:'Sung Jin-Woo did not become the Shadow Monarch by waiting to feel ready. Neither will you.'},
+  {jp:'警告',msg:'The flame inside you burns or fades. Every choice you make decides which.'},
+  {jp:'システムより',msg:'You have come too far to let today be the day you stop. Train, Hunter.'},
+  {jp:'なぜ始めたか',msg:'Look at Day 0. Look at where you are now. That gap is you. Keep growing it.'}
 ];
 
-function getAccMsg(){
-  const idx=S.totalDays%ACC_MSGS.length;
-  return ACC_MSGS[idx];
+// ═══════════════════════════════════════
+// 24HR TIMER + WARNING SYSTEM
+// ═══════════════════════════════════════
+let timerMainInt=null;
+
+// Warning schedule:
+// Quest day: warn at hours elapsed 4,9,14,19 (every 5hrs until 20hrs)
+// Then every hour from 20hrs elapsed (hours 20,21,22,23)
+// Work day: silence for 10hrs, then same schedule from hour 10
+const WARNINGS=[
+  {hoursElapsed:4,  jp:'強くなる時だ',   rom:'Time to get strong',     intensity:0.4},
+  {hoursElapsed:9,  jp:'時間がなくなってきた',rom:'Time is running out',  intensity:0.5},
+  {hoursElapsed:14, jp:'立ち上がれ',      rom:'Rise up',               intensity:0.6},
+  {hoursElapsed:19, jp:'お前はまだ弱い',  rom:'You are still weak',    intensity:0.7},
+  {hoursElapsed:20, jp:'逃げ場はない',    rom:'There is no escape',    intensity:0.8},
+  {hoursElapsed:21, jp:'逃げ場はない',    rom:'There is no escape',    intensity:0.85},
+  {hoursElapsed:22, jp:'罰を受けろ',      rom:'Accept your punishment',intensity:0.9},
+  {hoursElapsed:23, jp:'罰を受けろ',      rom:'Final warning Hunter',  intensity:1.0},
+];
+
+function startMainTimer(){
+  clearInterval(timerMainInt);
+  timerMainInt=setInterval(tickTimer,1000);
+  tickTimer();
+}
+
+function tickTimer(){
+  const now=new Date();
+  const midnight=new Date(now);midnight.setHours(0,0,0,0);
+  const elapsed=(now-midnight)/3600000; // hours elapsed today
+  const remaining=24-elapsed;
+  const h=Math.floor(remaining);
+  const m=Math.floor((remaining%1)*60);
+  const sec=Math.floor(((remaining%1)*60%1)*60);
+  const timeStr=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+
+  const el=document.getElementById('dtTime');
+  if(el)el.textContent=timeStr;
+
+  // Bar colour — purple → orange → red
+  const pct=remaining/24;
+  let barColor;
+  if(pct>0.33)barColor=`rgba(110,80,255,${0.5+pct*0.5})`;
+  else if(pct>0.16)barColor=`rgba(255,140,50,0.8)`;
+  else barColor=`rgba(255,51,68,0.9)`;
+  const bar=document.getElementById('dtBar');
+  if(bar){bar.style.width=(pct*100)+'%';bar.style.background=barColor;}
+
+  // Status
+  const allDone=S.quests&&S.quests.every(q=>q.done);
+  const statusEl=document.getElementById('dtStatus');
+  if(statusEl){
+    if(allDone)statusEl.textContent='Dungeon Cleared ⚔';
+    else if(pct<0.08)statusEl.textContent='⚠ FINAL WARNING';
+    else if(pct<0.17)statusEl.textContent='⚠ WARNING — TRAIN NOW';
+    else if(pct<0.33)statusEl.textContent='Time Running Out';
+    else statusEl.textContent=S.dayMode==='work'?'Work Mode Active':'Quest Pending';
+  }
+
+  // Flame time label on quests screen
+  const ftl=document.getElementById('flameTimeLbl');
+  if(ftl)ftl.textContent=timeStr;
+
+  // Check warnings — only if quest not done and day started as quest mode
+  if(!allDone&&S.dayStarted){
+    const effectiveElapsed=S.dayMode==='work'?Math.max(0,elapsed-10):elapsed;
+    S.warningsFired=S.warningsFired||[];
+    WARNINGS.forEach(w=>{
+      const key='w'+w.hoursElapsed;
+      if(effectiveElapsed>=w.hoursElapsed&&!S.warningsFired.includes(key)){
+        S.warningsFired.push(key);
+        save();
+        triggerGlitch(w.jp,w.intensity);
+        speakJP(w.jp);
+        showToast(w.jp,w.rom,'Hunter — '+Math.floor(24-elapsed)+'h remaining today.');
+      }
+    });
+  }
 }
 
 // ═══════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════
-function renderAll(){
-  renderHome();renderQuests();renderProgress();renderArmy();renderBoss();renderLog();renderBody();renderSettings();
-}
+function renderAll(){renderHome();renderQuests();renderProgress();renderArmy();renderBoss();renderLog();renderBody();renderSettings();}
 
 function renderHome(){
-  // License card
+  // License card rank class
+  const rc={'E-RANK':'e-rank','D-RANK':'d-rank','C-RANK':'c-rank','B-RANK':'b-rank','A-RANK':'a-rank','S-RANK':'s-rank'};
+  const card=document.getElementById('licenseCard');
+  card.className='license-card fu '+(rc[S.rank]||'e-rank');
   document.getElementById('lcName').textContent=S.hunter.name||'Hunter';
   document.getElementById('lcLevel').textContent=S.level;
   document.getElementById('lcRank').textContent=S.rank;
   document.getElementById('lcDob').textContent=S.hunter.dob?'Born: '+S.hunter.dob:'';
   const days=S.startDate?Math.floor((Date.now()-new Date(S.startDate))/(1000*60*60*24)):0;
   document.getElementById('lcDays').textContent='Day '+days;
-  if(S.hunter.profilePhoto){const p=document.getElementById('lcPhoto');p.innerHTML=`<img src="${S.hunter.profilePhoto}">`;}
+  if(S.hunter.profilePhoto)document.getElementById('lcPhoto').innerHTML=`<img src="${S.hunter.profilePhoto}">`;
   const titles={'E-RANK':'The Weakest... For Now','D-RANK':'An Emerging Hunter','C-RANK':'A Force to Reckon With','B-RANK':'The Powerful Hunter','A-RANK':'Elite Hunter','S-RANK':'The Shadow Monarch'};
   document.getElementById('lcTitle').textContent=titles[S.rank]||'Hunter';
-  // XP
   const xpN=S.level*100;
   document.getElementById('xpFill').style.width=Math.min(100,Math.round(S.xp/xpN*100))+'%';
   document.getElementById('xpCur').textContent=S.xp;
@@ -1050,30 +1143,32 @@ function renderHome(){
     document.getElementById(id).textContent=S.stats[s];
     document.getElementById(bid).style.width=Math.min(100,S.stats[s])+'%';
   });
+  // Day timer labels
+  const dayN=S.startDate?Math.floor((Date.now()-new Date(S.startDate))/(1000*60*60*24))+1:1;
+  document.getElementById('dtDay').textContent=dayN;
+  document.getElementById('dtRank').textContent=S.rank;
+  const wkLabels=['WEEK 1','WEEK 2','WEEK 3','WEEK 4+'];
+  document.getElementById('dtWeek').textContent=wkLabels[Math.min((S.week||1)-1,3)];
   // Day choice
   renderDayChoice();
   // Streak
-  const days2=['M','T','W','T','F','S','S'];
+  const dnames=['M','T','W','T','F','S','S'];
   const sd=document.getElementById('streakDays');sd.innerHTML='';
-  const today=new Date().getDay();const todayIdx=today===0?6:today-1;
-  days2.forEach((d,i)=>{
-    const cls=i===todayIdx?'today':(S.streakDays[i]?'done':'');
-    sd.innerHTML+=`<div class="sday ${cls}">${d}</div>`;
-  });
+  const todayIdx=new Date().getDay()===0?6:new Date().getDay()-1;
+  dnames.forEach((d,i)=>{const cls=i===todayIdx?'today':(S.streakDays[i]?'done':'');sd.innerHTML+=`<div class="sday ${cls}">${d}</div>`;});
   document.getElementById('streakNum').textContent=S.streak;
-  const msgs=[{m:'Begin your journey, Hunter',j:'起きろ'},{m:'Keep going, Hunter',j:'頑張れ'},{m:'You are growing stronger',j:'強くなってる'},{m:'The dungeon awaits',j:'頑張れ'},{m:'Maintain the streak',j:'続けろ'},{m:'Weakness fades here',j:'強くなった'},{m:'Rest is earned, not chosen',j:'今日も頑張れ'}];
-  const mi=Math.min(S.streak,msgs.length-1);
-  document.getElementById('streakMsg').textContent=msgs[mi].m;
-  document.getElementById('streakJp').textContent=msgs[mi].j;
+  const sm=[{m:'Begin your journey',j:'起きろ'},{m:'Keep going, Hunter',j:'頑張れ'},{m:'Growing stronger',j:'強くなってる'},{m:'Dungeon awaits',j:'頑張れ'},{m:'Maintain the streak',j:'続けろ'},{m:'Weakness fades',j:'強くなった'},{m:'Rest is earned',j:'今日も頑張れ'}];
+  const mi=Math.min(S.streak,sm.length-1);
+  document.getElementById('streakMsg').textContent=sm[mi].m;
+  document.getElementById('streakJp').textContent=sm[mi].j;
   // Accountability
-  const acc=getAccMsg();
+  const acc=MSGS[S.totalDays%MSGS.length];
   document.getElementById('accJp').textContent=acc.jp;
   document.getElementById('accMsg').textContent=acc.msg;
   // Water
-  document.getElementById('waterCur').textContent=S.water.toFixed(1);
-  document.getElementById('waterGoal').textContent=S.waterGoal;
-  document.getElementById('waterFill').style.width=Math.min(100,S.water/S.waterGoal*100)+'%';
-  // Shadow preview
+  document.getElementById('waterCur').textContent=(S.water||0).toFixed(1);
+  document.getElementById('waterFill').style.width=Math.min(100,(S.water||0)/(S.waterGoal||3)*100)+'%';
+  // Shadow
   const se=['👤','⚡','🗡️','🛡️','💀'];
   document.getElementById('spCount').textContent=S.shadows.length;
   const sr=document.getElementById('spRow');sr.innerHTML='';
@@ -1081,8 +1176,7 @@ function renderHome(){
     if(i<S.shadows.length)sr.innerHTML+=`<div class="sp-unit alive">${se[i%se.length]}</div>`;
     else sr.innerHTML+=`<div class="sp-unit locked">${i===S.shadows.length?'?':''}</div>`;
   }
-  if(S.shadows.length>5)sr.innerHTML+=`<div class="sp-more">+${S.shadows.length-5}</div>`;
-  // Home quest preview
+  // Quest preview
   const hql=document.getElementById('homeQList');hql.innerHTML='';
   (S.quests||[]).slice(0,3).forEach((q,i)=>hql.innerHTML+=qCardHTML(q,i));
 }
@@ -1092,56 +1186,45 @@ function renderDayChoice(){
   const today=new Date().toDateString();
   if(S.dayStarted&&S.dayDate===today){
     if(S.dayMode==='quest'){
-      area.innerHTML=`<div class="active-state-card quest-active fu"><div class="asc-label">Quest Mode Active</div><div class="asc-timer" id="questCountdown">--:--:--</div><div class="asc-jp">強くなる時だ — Time to get strong</div><button class="asc-btn" onclick="showScreen('quests')">TRAIN NOW →</button></div>`;
-      startQuestCountdown();
+      area.innerHTML=`<div class="active-state-card quest-active fu"><div class="asc-label">Quest Mode Active</div><div class="asc-jp">強くなる時だ — Time to get strong</div><button class="asc-btn" onclick="showScreen('quests')">TRAIN NOW →</button></div>`;
     }else if(S.dayMode==='work'){
-      area.innerHTML=`<div class="active-state-card work-active fu"><div class="asc-label">Work Mode Active</div><div class="asc-timer" id="workCountdown">--:--:--</div><div class="asc-jp">強くなる時だ — Time runs out</div><button class="asc-btn" onclick="startDay('quest')">FINISHED WORK EARLY →</button></div>`;
-      startWorkCountdown();
+      area.innerHTML=`<div class="active-state-card work-active fu"><div class="asc-label">Work Mode — Silence For 10 Hours</div><div class="asc-jp">強くなる時だ — Warnings begin after 10 hours</div><button class="asc-btn" onclick="switchToQuest()">FINISHED WORK EARLY →</button></div>`;
+    }else if(S.dayMode==='exhausted'){
+      area.innerHTML=`<div class="active-state-card exh-active fu"><div class="asc-label" style="color:rgba(255,140,80,0.7)">Exhausted — Light Quest Active</div><div class="asc-jp" style="font-family:'Noto Sans JP',sans-serif;font-size:11px;color:var(--text3);margin-bottom:12px">今日は軽めに</div><button style="padding:11px 18px;border-radius:10px;border:1px solid rgba(255,140,80,0.4);background:rgba(255,100,30,0.07);color:rgba(255,140,80,0.85);font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer" onclick="showScreen('quests')">BEGIN LIGHT QUEST →</button></div>`;
     }else{
-      area.innerHTML=`<div class="active-state-card rest-active fu"><div class="asc-label" style="color:var(--purple2)">Rest Day</div><div style="font-family:'Noto Sans JP',sans-serif;font-size:28px;color:var(--purple3);margin:8px 0">今日は休め</div><div style="font-size:12px;color:var(--text3)">Kyou wa yasume — Rest today Hunter</div></div>`;
+      area.innerHTML=`<div class="active-state-card quest-active fu"><div class="asc-label">Rest Day Assigned</div><div style="font-family:'Noto Sans JP',sans-serif;font-size:26px;color:var(--purple3);margin:6px 0">今日は休め</div><div style="font-size:11px;color:var(--text3)">Kyou wa yasume — Rest well, Hunter</div></div>`;
     }
   }else{
-    const restAvail=S.restDays>0&&!S.restUsedThisMonth;
     area.innerHTML=`<div class="day-choices fu">
-      <div class="day-btn quest-btn" onclick="startDay('quest')"><div class="day-btn-icon">⚔️</div><div class="day-btn-label">Quest</div><div class="day-btn-sub">Begin training now</div></div>
-      <div class="day-btn work-btn" onclick="startDay('work')"><div class="day-btn-icon">🏗️</div><div class="day-btn-label">Work</div><div class="day-btn-sub">10hr grace period</div></div>
-      <div class="day-btn rest-btn" onclick="startDay('rest')" style="${restAvail?'opacity:0.6':'opacity:0.25;pointer-events:none'}"><div class="day-btn-icon">🌙</div><div class="day-btn-label">Rest</div><div class="day-btn-sub">${S.restDays} days left</div></div>
+      <div class="day-btn quest-btn" onclick="startDay('quest')"><div class="day-btn-icon">⚔️</div><div class="day-btn-label">Quest</div><div class="day-btn-sub">Train now</div></div>
+      <div class="day-btn work-btn" onclick="startDay('work')"><div class="day-btn-icon">🏗️</div><div class="day-btn-label">Work</div><div class="day-btn-sub">10hr silence</div></div>
+      <div class="day-btn exh-btn" onclick="checkExhausted()"><div class="day-btn-icon">💀</div><div class="day-btn-label">Exhausted</div><div class="day-btn-sub">Light quest</div></div>
     </div>`;
   }
 }
 
-let questCountdownInt=null,workCountdownInt=null;
-function startQuestCountdown(){
-  clearInterval(questCountdownInt);
-  function tick(){
-    const el=document.getElementById('questCountdown');if(!el)return;
-    const now=new Date();const end=new Date(now);end.setHours(23,59,59,999);
-    const diff=end-now;
-    const h=Math.floor(diff/3600000);const m=Math.floor((diff%3600000)/60000);const s=Math.floor((diff%60000)/1000);
-    el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  }
-  tick();questCountdownInt=setInterval(tick,1000);
-}
-function startWorkCountdown(){
-  clearInterval(workCountdownInt);
-  const startT=S.workStartTime?new Date(S.workStartTime):new Date();
-  function tick(){
-    const el=document.getElementById('workCountdown');if(!el)return;
-    const elapsed=(Date.now()-startT)/3600000;
-    const remaining=Math.max(0,10-elapsed);
-    const h=Math.floor(remaining);const m=Math.floor((remaining%1)*60);const s=Math.floor(((remaining%1)*60%1)*60);
-    el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    if(remaining<=0){clearInterval(workCountdownInt);showToast('お前はまだ弱い','Omae wa mada yowai','Time is up, Hunter. Train NOW.');}
-  }
-  tick();workCountdownInt=setInterval(tick,1000);
+function switchToQuest(){
+  S.dayMode='quest';S.workStartTime=null;
+  save();renderDayChoice();
+  speakJP('戦え');showToast('戦え','Tatakae','Quest mode active. Train now, Hunter!');
 }
 
 function qCardHTML(q,i){
-  const done=q.done;
-  const locked=i>0&&!(S.quests[i-1]?.done);
+  const done=q.done;const locked=i>0&&!(S.quests[i-1]?.done);
   const cls=done?'done':(locked?'locked':'');
   const oc=(!done&&!locked)?`onclick="openTimer(${i})"`:'';
-  return `<div class="quest-card fu ${cls}" ${oc}><div class="qglow"></div><div class="q-icon">${q.icon}</div><div class="q-body"><div class="q-name">${q.name}</div><div class="q-sub">${q.reps}</div><div class="q-xp">+${q.xp} XP · +${q.stat.toUpperCase()}</div></div><div class="q-check"><span class="q-tick">✓</span></div></div>`;
+  return `<div class="quest-card fu ${cls}" ${oc}><div class="qglow"></div><div class="q-icon">${q.icon}</div><div style="flex:1;min-width:0"><div class="q-name">${q.name}</div><div class="q-sub">${q.reps}</div><div class="q-xp">+${q.xp} XP · +${q.stat.toUpperCase()}</div></div><div class="q-check"><span class="q-tick">✓</span></div></div>`;
+}
+
+function updateIOBtns(){
+  const ob=document.getElementById('outdoorBtn');
+  const ib=document.getElementById('indoorBtn');
+  if(!ob||!ib)return;
+  if(S.isIndoor){
+    ob.className='io-btn';ib.className='io-btn active';
+  }else{
+    ob.className='io-btn active';ib.className='io-btn';
+  }
 }
 
 function renderQuests(){
@@ -1154,8 +1237,9 @@ function renderQuests(){
   document.getElementById('questXP').textContent='+'+earned;
   document.getElementById('questProgressTxt').textContent=done+' / '+total+' Complete';
   document.getElementById('questProgressBar').style.width=(total?done/total*100:0)+'%';
-  const wkLabels=['Week 1 — Adaptation','Week 2 — Building','Week 3 — Full Reps Begin','Week 4+ — No Mercy'];
+  const wkLabels=['Week 1 — Adaptation','Week 2 — Building','Week 3 — Full Reps','Week 4+ — No Mercy'];
   document.getElementById('weekLabel').textContent=wkLabels[Math.min((S.week||1)-1,3)];
+  updateIOBtns();
 }
 
 function renderProgress(){
@@ -1176,43 +1260,39 @@ function renderProgress(){
   ];
   const rr=document.getElementById('rankRoad');rr.innerHTML='';
   ranks.forEach((r,i)=>{
-    const isCur=r.n===S.rank;const dc=isCur?'cur':'lock';const nc=isCur?'cur':'lock';
-    const isLast=i===ranks.length-1;
-    rr.innerHTML+=`<div class="rank-step"><div class="rank-lcol"><div class="rank-dot ${dc}">${r.n.charAt(0)}</div>${!isLast?'<div class="rank-conn"></div>':''}</div><div class="rank-info"><div class="rank-rname ${nc}">${r.n}</div><div class="rank-req"><span>Run:</span> ${r.run} · <span>Push-ups:</span> ${r.push} · <span>Pull-ups:</span> ${r.pull}<br>${r.days>0?`<span>Min days:</span> ${r.days} · <span>XP needed:</span> ${r.xp.toLocaleString()}`:'<span>Your starting rank</span>'}</div></div></div>`;
+    const isCur=r.n===S.rank;const dc=isCur?'cur':'lock';const nc=isCur?'cur':'lock';const isLast=i===ranks.length-1;
+    rr.innerHTML+=`<div class="rank-step"><div class="rank-lcol"><div class="rank-dot ${dc}">${r.n.charAt(0)}</div>${!isLast?'<div class="rank-conn"></div>':''}</div><div class="rank-info"><div class="rank-rname ${nc}">${r.n}</div><div class="rank-req"><span>Run:</span> ${r.run} · <span>Push-ups:</span> ${r.push} · <span>Pull-ups:</span> ${r.pull}<br>${r.days>0?`<span>Min days:</span> ${r.days} · <span>XP:</span> ${r.xp.toLocaleString()}`:'<span>Your starting rank</span>'}</div></div></div>`;
   });
   const pb=document.getElementById('personalBests');
-  pb.innerHTML=`
-  <div class="metric-card"><div><div class="metric-lbl">Best Run</div><div class="metric-val" style="font-size:20px">${S.bests.run||'--'}</div></div><div class="metric-change">${S.bests.run?'Personal Best':'Not set yet'}</div></div>
-  <div class="metric-card"><div><div class="metric-lbl">Most Push-ups</div><div class="metric-val" style="font-size:20px">${S.bests.pushup||'--'}</div></div><div class="metric-change">${S.bests.pushup?'Personal Best':'Not set yet'}</div></div>
-  <div class="metric-card"><div><div class="metric-lbl">Longest Plank</div><div class="metric-val" style="font-size:20px">${S.bests.plank||'--'}</div></div><div class="metric-change">${S.bests.plank?'Personal Best':'Not set yet'}</div></div>`;
+  pb.innerHTML=`<div class="metric-card"><div><div class="metric-lbl">Best Run</div><div class="metric-val" style="font-size:20px">${S.bests.run||'--'}</div></div><div class="metric-change">${S.bests.run?'Personal Best':'Not set yet'}</div></div><div class="metric-card"><div><div class="metric-lbl">Most Push-ups</div><div class="metric-val" style="font-size:20px">${S.bests.pushup||'--'}</div></div><div class="metric-change">${S.bests.pushup?'Personal Best':'Not set yet'}</div></div><div class="metric-card"><div><div class="metric-lbl">Longest Plank</div><div class="metric-val" style="font-size:20px">${S.bests.plank||'--'}</div></div><div class="metric-change">${S.bests.plank?'Personal Best':'Not set yet'}</div></div>`;
 }
 
 function renderArmy(){
-  const se=['👤','⚡','🗡️','🛡️','💀','🔥','🌑','⚔️','🦇','💎','🔮','⚙️','🌊','🏔️','💠','🗝️','👁️','⛩️','🎴','🌀'];
-  const sn=['Shade','Volt','Blade','Guard','Null','Ember','Dark','Striker','Night','Gem','Mystic','Forge','Wave','Peak','Crystal','Key','Eye','Gate','Card','Spiral'];
   document.getElementById('armyCount').textContent=S.shadows.length;
   const g=document.getElementById('armyGrid');g.innerHTML='';
-  for(let i=0;i<20;i++){
-    if(i<S.shadows.length)g.innerHTML+=`<div class="army-unit alive"><div class="army-emoji">${se[i%se.length]}</div><div class="army-name">${sn[i]||'Shadow '+(i+1)}</div></div>`;
-    else g.innerHTML+=`<div class="army-unit lock2"><div class="army-emoji" style="font-size:12px;opacity:0.15">?</div></div>`;
-  }
+  SHADOWS.forEach((sh,i)=>{
+    if(i<S.shadows.length){
+      g.innerHTML+=`<div class="army-unit alive"><div class="army-emoji">${sh.icon}</div><div class="army-name">${sh.name}</div><div class="army-role">${sh.role}</div></div>`;
+    }else{
+      g.innerHTML+=`<div class="army-unit lock2"><div class="army-emoji" style="font-size:10px;opacity:0.08">?</div><div class="army-name" style="font-size:5px;opacity:0.2">${sh.unlock}</div></div>`;
+    }
+  });
 }
 
 function renderBoss(){
   const w=S.week||1;
   const bosses=[
-    {name:'The Awakening Trial',emoji:'👁️',rank:'WEEK 1 BOSS · E-RANK',desc:'Your first test as a Hunter. The System demands consistency above all else. Prove you can show up every single day this week.',reqs:['Complete all 7 daily quests this week','7 days of training — no exceptions'],rewards:'+300 XP · +2 All Stats · Shadow Soldier',hp:100},
-    {name:'The Iron Sentinel',emoji:'🤖',rank:'WEEK 2 BOSS · E-RANK',desc:'A guardian of iron discipline. It tests your raw strength. Defeat it with 30 push-ups accumulated across the week.',reqs:['Complete 30 push-ups total this week','Complete at least 5 daily quest sessions'],rewards:'+400 XP · +3 STR · Shadow Soldier',hp:100},
-    {name:'The Coastal Wraith',emoji:'👻',rank:'WEEK 3 BOSS · E-RANK',desc:'A ghost that haunts the roads. It will only fall when you have covered 5km on foot this week. Get outside, Hunter.',reqs:['Run or walk 5km total this week','Complete at least 5 daily quest sessions'],rewards:'+400 XP · +3 AGI · Shadow Soldier',hp:100},
-    {name:'The Core Demon',emoji:'💀',rank:'WEEK 4 BOSS · E-RANK',desc:'Week 4. The adaptation period is over. The System shows no mercy from this day. Hold 2 minutes of plank total this week.',reqs:['Hold plank for 2 minutes total this week','Complete ALL 7 quests at least 5 days'],rewards:'+500 XP · +3 VIT · Rare Shadow Soldier',hp:100},
+    {name:'The Awakening Trial',emoji:'👁️',rank:'WEEK 1 BOSS · E-RANK',desc:'Your first test. The System demands consistency. Prove you can show up every day this week.',reqs:['Complete all daily quests this week','7 days — no exceptions'],rewards:'+300 XP · +2 All Stats · Kasaka'},
+    {name:'The Iron Sentinel',emoji:'🤖',rank:'WEEK 2 BOSS · E-RANK',desc:'A guardian of iron discipline. Defeat it with 30 push-ups total this week.',reqs:['Complete 30 push-ups total','At least 5 daily quest sessions'],rewards:'+400 XP · +3 STR · Greed'},
+    {name:'The Coastal Wraith',emoji:'👻',rank:'WEEK 3 BOSS · E-RANK',desc:'A ghost that haunts the roads. It falls when you cover 5km on foot this week.',reqs:['Run or walk 5km total this week','At least 5 daily sessions'],rewards:'+400 XP · +3 AGI · Iron'},
+    {name:'The Core Demon',emoji:'💀',rank:'WEEK 4 BOSS · E-RANK',desc:'Week 4. No mercy. Hold 2 minutes of plank total this week.',reqs:['Hold plank 2 minutes total','Complete ALL quests at least 5 days'],rewards:'+500 XP · +3 VIT · Tank'},
   ];
   const boss=bosses[Math.min(w-1,bosses.length-1)];
   document.getElementById('bfEmoji').textContent=boss.emoji;
-  document.getElementById('bfName').textContent=boss.name;
+  document.getElementById('bfName2').textContent=boss.name;
   document.getElementById('bfRank').textContent=boss.rank;
-  document.getElementById('bfDesc').textContent=boss.desc;
-  const reqs=document.getElementById('bfReqs');
-  reqs.innerHTML=`<div class="bf-req-title">Requirements to defeat</div>`+boss.reqs.map(r=>`<div class="bf-req-item"><span class="bf-bullet">▸</span>${r}</div>`).join('');
+  document.getElementById('bfDesc2').textContent=boss.desc;
+  document.getElementById('bfReqs').innerHTML=`<div class="bf-req-title">Requirements to defeat</div>`+boss.reqs.map(r=>`<div class="bf-req-item"><span class="bf-bullet">▸</span>${r}</div>`).join('');
   document.getElementById('bfRewards').innerHTML=boss.rewards.split(' · ').map(r=>`<span class="bp-tag">${r}</span>`).join('');
   document.getElementById('bfHpFill').style.width=Math.max(0,100-S.bossProgress)+'%';
   document.getElementById('bpName').textContent=boss.name;
@@ -1221,10 +1301,7 @@ function renderBoss(){
 
 function renderLog(){
   const list=document.getElementById('missionLog');
-  if(!S.questLog||S.questLog.length===0){
-    list.innerHTML='<div style="text-align:center;padding:36px 20px;color:var(--text3);font-size:12px;letter-spacing:1px;line-height:1.9">No missions recorded yet, Hunter.<br>Complete your first quest to begin your legend.<br><br><span style="font-family:\'Noto Sans JP\',sans-serif;font-size:16px;color:var(--text4)">起きろ</span></div>';
-    return;
-  }
+  if(!S.questLog||S.questLog.length===0){list.innerHTML='<div style="text-align:center;padding:36px 20px;color:var(--text3);font-size:12px;letter-spacing:1px;line-height:1.9">No missions recorded yet, Hunter.<br>Complete your first quest to begin your legend.<br><br><span style="font-family:\'Noto Sans JP\',sans-serif;font-size:16px;color:var(--text4)">起きろ</span></div>';return;}
   list.innerHTML='';
   [...S.questLog].reverse().slice(0,30).forEach(e=>{
     list.innerHTML+=`<div class="log-entry"><div class="log-icon">${e.icon}</div><div style="flex:1"><div class="log-title2">${e.title}</div><div class="log-meta">${e.date}</div></div><div class="log-xp2">+${e.xp}</div></div>`;
@@ -1236,16 +1313,12 @@ function renderBody(){
     const v=S.body[m];const prev=S.body['prev'+m.charAt(0).toUpperCase()+m.slice(1)];
     const id='m'+m.charAt(0).toUpperCase()+m.slice(1);
     document.getElementById(id).textContent=v!==null?v:'--';
-    const cid=id+'C';const cel=document.getElementById(cid);
+    const cel=document.getElementById(id+'C');
     if(v!==null&&prev!==null){const diff=(v-prev).toFixed(1);cel.textContent=(diff>0?'+':'')+diff+(m==='weight'?' kg':' cm');cel.style.color=diff>0?'var(--red)':'var(--green)';}
     else cel.textContent='Not logged';
   });
-  if(S.hunter.day0Photos.front){
-    const pc=document.getElementById('pcDay0');pc.innerHTML=`<img src="${S.hunter.day0Photos.front}"><div class="pc-lbl">DAY 0</div>`;
-  }
-  if(S.body.progressPhoto){
-    const pt=document.getElementById('pcToday');pt.innerHTML=`<img src="${S.body.progressPhoto}"><div class="pc-lbl">TODAY</div>`;
-  }
+  if(S.hunter.day0Photos&&S.hunter.day0Photos.front)document.getElementById('pcDay0').innerHTML=`<img src="${S.hunter.day0Photos.front}"><div class="pc-lbl">DAY 0</div>`;
+  if(S.body.progressPhoto)document.getElementById('pcToday').innerHTML=`<img src="${S.body.progressPhoto}"><div class="pc-lbl">TODAY</div>`;
 }
 
 function renderSettings(){
@@ -1253,15 +1326,15 @@ function renderSettings(){
   document.getElementById('sDob').value=S.hunter.dob||'';
   document.getElementById('sPostcode').value=S.hunter.postcode||'';
   document.getElementById('sTarget').value=S.hunter.targetWeight||'';
-  document.getElementById('sSleep').value=S.hunter.sleepTime||'';
+  document.getElementById('sSleepTarget').value=S.hunter.sleepTarget||'23:00';
+  document.getElementById('sWakeTarget').value=S.hunter.wakeTarget||'07:00';
   document.getElementById('sReportDay').textContent=S.hunter.reportDay||'Monday';
-  document.getElementById('sRestDays').textContent=S.restDays;
+  document.getElementById('sExhDays').textContent=(S.exhaustedUsedThisMonth||0)+' / 2';
   const toggles={watch:'tWatch',foot:'tFoot',jpVoice:'tJpVoice'};
-  Object.entries(toggles).forEach(([k,id])=>{
-    const el=document.getElementById(id);if(el)el.classList.toggle('on',S.equipment.indexOf(k)>-1||k==='jpVoice');
-  });
+  Object.entries(toggles).forEach(([k,id])=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',S.equipment&&(S.equipment.includes(k)||(k==='jpVoice'&&!S.equipment.includes('noJp'))));});
   const eqList=document.getElementById('eqList');eqList.innerHTML='';
   (S.equipment||[]).forEach((eq,i)=>{
+    if(['watch','foot','jpVoice','noJp'].includes(eq))return;
     eqList.innerHTML+=`<div class="eq-item"><span class="eq-name">✓ ${eq}</span><button class="eq-del" onclick="deleteEq(${i})">×</button></div>`;
   });
 }
@@ -1269,33 +1342,54 @@ function renderSettings(){
 // ═══════════════════════════════════════
 // TIMER
 // ═══════════════════════════════════════
-let timerInt=null,curQIdx=-1;
+let timerInt=null,curQIdx=-1,timerStarted=false,timerSec=0;
+
 function openTimer(i){
-  const q=S.quests[i];curQIdx=i;
+  const q=S.quests[i];curQIdx=i;timerStarted=false;timerSec=q.dur;
   document.getElementById('tQName').textContent=q.name.toUpperCase();
   document.getElementById('tReps').textContent=q.reps;
   document.getElementById('tStat').textContent='BUILDS '+q.stat.toUpperCase();
   document.getElementById('tInst').innerHTML=q.inst.map((s,j)=>`<div class="inst-step"><span class="inst-n">${j+1}</span><span>${s}</span></div>`).join('');
   document.getElementById('tMistake').textContent=q.mistake;
-  runTimer(q.dur);
+  document.getElementById('tDigits').textContent=q.dur;
+  document.getElementById('tCircle').style.strokeDashoffset='0';
+  document.getElementById('tDoneBtn').classList.remove('ready');
+  document.getElementById('tDoneBtn').style.opacity='0.3';
+  document.getElementById('beginBtn').style.display='block';
+  clearInterval(timerInt);
   document.getElementById('timerOv').classList.add('show');
+  speakJP('戦え');
 }
-function runTimer(sec){
-  clearInterval(timerInt);let rem=sec;
+
+function beginTimer(){
+  if(timerStarted)return;
+  timerStarted=true;
+  document.getElementById('beginBtn').style.display='none';
+  clearInterval(timerInt);
+  let rem=timerSec;
   const circ=document.getElementById('tCircle');const cf=440;
   document.getElementById('tDoneBtn').classList.remove('ready');
+  document.getElementById('tDoneBtn').style.opacity='0.3';
   function tick(){
     document.getElementById('tDigits').textContent=rem;
-    circ.style.strokeDashoffset=cf-(cf*(1-rem/sec));
-    if(rem<=0){clearInterval(timerInt);document.getElementById('tDoneBtn').classList.add('ready');showToast('よくやった','Yoku yatta','Timer complete — mark as done!')}
+    circ.style.strokeDashoffset=cf-(cf*(1-(rem/timerSec)));
+    if(rem<=0){
+      clearInterval(timerInt);
+      document.getElementById('tDoneBtn').classList.add('ready');
+      document.getElementById('tDoneBtn').style.opacity='1';
+      speakJP('よくやった');
+      showToast('よくやった','Yoku yatta','Timer complete — mark as done!');
+    }
     rem--;
   }
   tick();timerInt=setInterval(tick,1000);
 }
-function closeTimer(){clearInterval(timerInt);document.getElementById('timerOv').classList.remove('show')}
+
+function closeTimer(){clearInterval(timerInt);timerStarted=false;document.getElementById('timerOv').classList.remove('show');}
+
 function completeQuest(){
   const btn=document.getElementById('tDoneBtn');
-  if(!btn.classList.contains('ready')){showToast('待て','Mate','Timer must finish first, Hunter.');return}
+  if(!btn.classList.contains('ready')){showToast('待て','Mate','Timer must finish first, Hunter.');return;}
   const q=S.quests[curQIdx];if(!q||q.done)return;
   q.done=true;S.xp+=q.xp;S.stats[q.stat]=Math.min(100,S.stats[q.stat]+1);
   S.questLog=S.questLog||[];
@@ -1304,9 +1398,13 @@ function completeQuest(){
   const xpN=S.level*100;
   if(S.xp>=xpN){
     S.xp-=xpN;S.level++;
-    S.shadows.push({name:'Shadow '+S.shadows.length,date:new Date().toLocaleDateString()});
+    if(S.shadows.length<SHADOWS.length)S.shadows.push(SHADOWS[S.shadows.length]);
     updateRank();
-    setTimeout(()=>{document.getElementById('lvlupMsg').textContent=`Level ${S.level} reached. A new shadow has been extracted.`;document.getElementById('lvlup').classList.add('show')},600);
+    setTimeout(()=>{
+      const ns=SHADOWS[S.shadows.length-1];
+      document.getElementById('lvlupMsg').textContent=`Level ${S.level} reached. ${ns?ns.name+' extracted.':'A new shadow joins.'}`;
+      document.getElementById('lvlup').classList.add('show');speakJP('強くなった');
+    },600);
   }
   save();closeTimer();renderAll();
   showToast('よくやった','Yoku yatta',q.name+' complete! +'+q.xp+' XP');
@@ -1316,11 +1414,11 @@ function completeQuest(){
     S.totalDays++;
     const earned=S.quests.reduce((a,q)=>a+q.xp,0);
     document.getElementById('dcXP').textContent='+'+earned+' XP Today';
-    document.getElementById('dcMsg').textContent='All quests complete, Hunter.\nThe System acknowledges your strength.';
-    setTimeout(()=>document.getElementById('dungeonCleared').classList.add('show'),800);
+    setTimeout(()=>{document.getElementById('dungeonCleared').classList.add('show');speakJP('目覚めよ');},800);
     save();
   }
 }
+
 function updateRank(){
   if(S.level>=20)S.rank='S-RANK';
   else if(S.level>=15)S.rank='A-RANK';
@@ -1329,39 +1427,126 @@ function updateRank(){
   else if(S.level>=3)S.rank='D-RANK';
   else S.rank='E-RANK';
 }
-function closeLvlUp(){document.getElementById('lvlup').classList.remove('show')}
+
+// ═══════════════════════════════════════
+// MORNING FEELING
+// ═══════════════════════════════════════
+function showMorningFeel(){
+  const d=new Date();
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('mfDate').textContent=days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  document.getElementById('morningFeel').classList.add('show');
+  speakJP('起きろ');
+}
+
+function setFeeling(feel){
+  S.feelingToday=feel;S.feelingDate=new Date().toDateString();
+  document.getElementById('morningFeel').classList.remove('show');
+  save();
+  if(feel==='fresh'){showToast('起きろ','Okiro','Full power today, Hunter. Begin.');speakJP('起きろ');}
+  else if(feel==='tired'){showToast('頑張れ','Ganbare','Tired but training. The System respects that.');}
+}
+
+function checkExhausted(){
+  // Don't close morning feel yet — keep it visible behind
+  showExhPopup();
+}
+
+function showExhPopup(){document.getElementById('exhPopup').classList.add('show');}
+
+function selectExhausted(reason){
+  S.exhaustedReason=reason;
+  // Close both popups first
+  document.getElementById('exhPopup').classList.remove('show');
+  document.getElementById('morningFeel').classList.remove('show');
+  S.exhaustedUsedThisMonth=(S.exhaustedUsedThisMonth||0)+1;
+  if(S.exhaustedUsedThisMonth>2){
+    showToast('警告','Keikoku','Exhausted limit reached this month. Full quest today, Hunter.');
+    startDay('quest');return;
+  }
+  // Set feeling and start day
+  S.feelingToday='exhausted';
+  S.feelingDate=new Date().toDateString();
+  startDay('exhausted');
+  const msgs={
+    work:'Heavy work day logged. Light quest activated.',
+    sleep:'Bad sleep noted. Water reminder on. Light quest.',
+    sore:'Body is sore. Active recovery quest activated.',
+    sick:'Feeling sick. Stretching only today.'
+  };
+  showToast('今日は軽めに','Light quest activated',msgs[reason]||'Light quest activated.');
+}
 
 // ═══════════════════════════════════════
 // DAY START
 // ═══════════════════════════════════════
 function startDay(mode){
   const today=new Date().toDateString();
-  if(mode==='rest'){
-    if(S.restDays<=0){showToast('断る','Kotowaru','No rest days available, Hunter.');return}
-    S.restDays--;S.restUsedThisMonth=true;
-    showToast('今日は休め','Kyou wa yasume','Rest day activated. Recover well, Hunter.');
-  }else if(mode==='work'){
-    S.workStartTime=Date.now();
-    showToast('強くなる時だ','Tsuyoku naru toki da','Work mode active. 10 hours grace period begins.');
-  }else{
-    showToast('戦え','Tatakae','Quest mode active. Your dungeon awaits, Hunter!');
-  }
-  S.dayMode=mode;S.dayStarted=true;S.dayDate=today;
+  S.dayMode=mode;S.dayStarted=true;S.dayDate=today;S.warningsFired=[];
   if(!S.startDate)S.startDate=Date.now();
-  save();renderDayChoice();
+  if(mode==='work'){S.workStartTime=Date.now();showToast('強くなる時だ','Work mode','Silence for 10 hours. Train after work.');}
+  else if(mode==='quest'){speakJP('戦え');showToast('戦え','Tatakae','Quest mode active. Your dungeon awaits!');}
+  initQuests();save();renderAll();
+}
+
+// ═══════════════════════════════════════
+// GPS
+// ═══════════════════════════════════════
+let gpsWatchId=null,gpsLastPos=null;
+
+function setOutdoor(){
+  const prevDone={};(S.quests||[]).forEach(q=>{prevDone[q.id]=q.done;});
+  S.isIndoor=false;initQuests();
+  S.quests.forEach(q=>{if(prevDone[q.id])q.done=true;});
+  save();renderQuests();updateIOBtns();
+  document.getElementById('gpsStatus').textContent='Ready — tap GPS to track run';
+  document.getElementById('gpsVal').textContent='0.00 km';
+  showToast('屋外','Outdoor mode','Run quest restored. Ready for GPS tracking!');
+}
+
+function setIndoor(){
+  const prevDone={};(S.quests||[]).forEach(q=>{prevDone[q.id]=q.done;});
+  S.isIndoor=true;initQuests();
+  S.quests.forEach(q=>{if(prevDone[q.id])q.done=true;});
+  if(gpsWatchId){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
+  save();renderQuests();updateIOBtns();
+  document.getElementById('gpsStatus').textContent='Indoor — High Knees active';
+  document.getElementById('gpsVal').textContent='Indoor';
+  showToast('室内','Indoor mode','Running replaced with High Knees!');
+}
+
+function startGPS(){
+  if(!navigator.geolocation){showToast('GPS','Error','GPS not available.');return;}
+  S.gpsDistance=0;gpsLastPos=null;
+  document.getElementById('gpsStatus').textContent='GPS Tracking...';
+  if(gpsWatchId)navigator.geolocation.clearWatch(gpsWatchId);
+  gpsWatchId=navigator.geolocation.watchPosition(pos=>{
+    if(gpsLastPos){
+      const d=calcDist(gpsLastPos.coords.latitude,gpsLastPos.coords.longitude,pos.coords.latitude,pos.coords.longitude);
+      S.gpsDistance=(S.gpsDistance||0)+d;
+      document.getElementById('gpsVal').textContent=S.gpsDistance.toFixed(2)+' km';
+    }
+    gpsLastPos=pos;
+  },()=>{document.getElementById('gpsStatus').textContent='GPS Error';},{enableHighAccuracy:true,maximumAge:5000});
+}
+
+function calcDist(lat1,lon1,lat2,lon2){
+  const R=6371;const dLat=(lat2-lat1)*Math.PI/180;const dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
 // ═══════════════════════════════════════
 // WATER
 // ═══════════════════════════════════════
 function addWater(amt){
-  S.water=Math.min(S.waterGoal+1,S.water+amt);
-  save();
+  S.water=Math.min((S.waterGoal||3)+0.5,(S.water||0)+amt);save();
   document.getElementById('waterCur').textContent=S.water.toFixed(1);
-  document.getElementById('waterFill').style.width=Math.min(100,S.water/S.waterGoal*100)+'%';
-  if(S.water>=S.waterGoal)showToast('よくやった','Yoku yatta','Water goal reached! The System approves.');
+  document.getElementById('waterFill').style.width=Math.min(100,S.water/(S.waterGoal||3)*100)+'%';
+  if(S.water>=(S.waterGoal||3))showToast('よくやった','Yoku yatta','Water goal reached!');
 }
-function resetWater(){S.water=0;save();document.getElementById('waterCur').textContent='0.0';document.getElementById('waterFill').style.width='0%'}
+function resetWater(){S.water=0;save();document.getElementById('waterCur').textContent='0.0';document.getElementById('waterFill').style.width='0%';}
 
 // ═══════════════════════════════════════
 // METRICS
@@ -1372,7 +1557,7 @@ function saveMetric(m){
   if(!isNaN(v)){
     const pk='prev'+m.charAt(0).toUpperCase()+m.slice(1);
     S.body[pk]=S.body[m];S.body[m]=v;save();renderBody();
-    showToast('よくやった','Yoku yatta',m.charAt(0).toUpperCase()+m.slice(1)+' logged: '+v);
+    showToast('よくやった','Yoku yatta',m+' logged: '+v);
     document.getElementById(ids[m]).value='';
   }
 }
@@ -1381,67 +1566,123 @@ function saveMetric(m){
 // JOURNAL
 // ═══════════════════════════════════════
 function saveJournal(){
-  const txt=document.getElementById('journalInput').value.trim();
-  if(!txt)return;
+  const txt=document.getElementById('journalInput').value.trim();if(!txt)return;
   S.journalEntries=S.journalEntries||[];
-  S.journalEntries.push({text:txt,date:new Date().toLocaleDateString('en-GB'),time:new Date().toLocaleTimeString()});
+  S.journalEntries.push({text:txt,date:new Date().toLocaleDateString('en-GB')});
   S.questLog.push({icon:'📓',title:'Journal: '+txt.substring(0,40)+(txt.length>40?'...':''),date:new Date().toLocaleDateString('en-GB'),xp:0});
   save();document.getElementById('journalInput').value='';
-  showToast('記録','Kiroku','Journal entry saved, Hunter.');renderLog();
+  showToast('記録','Kiroku','Journal entry saved.');renderLog();
 }
 
 // ═══════════════════════════════════════
 // BOSS
 // ═══════════════════════════════════════
-function engageBoss(){showToast('ボスが現れた','Bosu ga arawareta','Boss engaged! Complete this week\'s requirements to defeat it.')}
+function engageBoss(){speakJP('ボスが現れた');showToast('ボスが現れた','Boss engaged!','Complete requirements to defeat it.');}
 
 // ═══════════════════════════════════════
 // SETTINGS
 // ═══════════════════════════════════════
-function openSettings(){document.getElementById('settingsPanel').classList.add('open');document.getElementById('settingsOverlay').classList.add('open')}
-function closeSettings(){document.getElementById('settingsPanel').classList.remove('open');document.getElementById('settingsOverlay').classList.remove('open')}
-function saveSetting(k,v){S.hunter[k]=v;save();renderHome()}
-function toggleSetting(k){
-  const idx=S.equipment.indexOf(k);
-  if(idx>-1)S.equipment.splice(idx,1);else S.equipment.push(k);
+function openSettings(){document.getElementById('settingsPanel').classList.add('open');document.getElementById('settingsOverlay').classList.add('open');}
+function closeSettings(){document.getElementById('settingsPanel').classList.remove('open');document.getElementById('settingsOverlay').classList.remove('open');}
+function saveSetting(k,v){S.hunter[k]=v;save();renderHome();}
+function toggleEq(k){
+  S.equipment=S.equipment||[];
+  if(k==='jpVoice'){
+    const noJpIdx=S.equipment.indexOf('noJp');
+    if(noJpIdx>-1)S.equipment.splice(noJpIdx,1);else S.equipment.push('noJp');
+  }else{
+    const idx=S.equipment.indexOf(k);
+    if(idx>-1)S.equipment.splice(idx,1);else S.equipment.push(k);
+  }
   save();renderSettings();
 }
 function addEquipment(){
-  const v=document.getElementById('newEqInput').value.trim();
-  if(!v)return;
+  const v=document.getElementById('newEqInput').value.trim();if(!v)return;
   S.equipment=S.equipment||[];
-  if(!S.equipment.includes(v)){S.equipment.push(v);save();renderSettings();document.getElementById('newEqInput').value='';showToast('装備','Soubi','Equipment added: '+v);}
+  if(!S.equipment.includes(v)){S.equipment.push(v);save();renderSettings();document.getElementById('newEqInput').value='';showToast('装備','Equipment added',v);}
 }
-function deleteEq(i){S.equipment.splice(i,1);save();renderSettings()}
+function deleteEq(i){S.equipment.splice(i,1);save();renderSettings();}
+
+function validatePostcode(v){
+  const uk=/^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i;
+  if(uk.test(v.trim())){S.hunter.postcode=v.trim().toUpperCase();save();showToast('確認','Postcode confirmed',v.trim().toUpperCase());}
+  else if(v.length>4)showToast('エラー','Invalid format','Use UK postcode format: AB12 3CD');
+}
+
+function filterDob(input){
+  input.value=input.value.replace(/[^0-9\/]/g,'');
+  // Auto-add slashes
+  const v=input.value.replace(/\//g,'');
+  if(v.length>=3&&!input.value.includes('/'))input.value=v.slice(0,2)+'/'+v.slice(2);
+  if(v.length>=5&&input.value.split('/').length<3)input.value=input.value.slice(0,5)+'/'+input.value.slice(5);
+}
+
+function confirmReset(){
+  const code=prompt('Type ARISE to confirm full reset — all data will be lost:');
+  if(code==='ARISE'){
+    localStorage.removeItem(SK);
+    location.reload();
+  }
+}
 
 // ═══════════════════════════════════════
 // PHOTOS
 // ═══════════════════════════════════════
 let currentPhotoTarget='front';
-function takePhoto(target){currentPhotoTarget=target;document.getElementById('photoInput').click()}
+function takePhoto(t){currentPhotoTarget=t;document.getElementById('photoInput').click();}
 function handlePhoto(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=function(ev){
+    S.hunter.day0Photos=S.hunter.day0Photos||{};
     S.hunter.day0Photos[currentPhotoTarget]=ev.target.result;
     const slot=document.getElementById('photo'+currentPhotoTarget.charAt(0).toUpperCase()+currentPhotoTarget.slice(1));
-    if(slot){slot.innerHTML=`<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;}
+    if(slot)slot.innerHTML=`<img src="${ev.target.result}">`;
     save();
   };
   reader.readAsDataURL(file);
 }
-function takeProgressPhoto(){document.getElementById('progressPhotoInput').click()}
+function takeProfilePhoto(){document.getElementById('profilePhotoInput').click();}
+function handleProfilePhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){S.hunter.profilePhoto=ev.target.result;save();document.getElementById('lcPhoto').innerHTML=`<img src="${ev.target.result}">`};
+  reader.readAsDataURL(file);
+}
+function takeProgressPhoto(){document.getElementById('progressPhotoInput').click();}
 function handleProgressPhoto(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=function(ev){S.body.progressPhoto=ev.target.result;save();renderBody()};
+  reader.onload=function(ev){S.body.progressPhoto=ev.target.result;save();renderBody();};
   reader.readAsDataURL(file);
 }
 
 // ═══════════════════════════════════════
 // LOCKDOWN
 // ═══════════════════════════════════════
-function startPenalty(){document.getElementById('lockdown').classList.remove('show');showScreen('quests');showToast('罰を受けろ','Batsu wo ukero','Complete your penalty quest, Hunter.')}
+function startPenalty(){document.getElementById('lockdown').classList.remove('show');showScreen('quests');showToast('罰を受けろ','Penalty quest','Complete it to be freed, Hunter.');}
+
+// ═══════════════════════════════════════
+// JAPANESE VOICE — deep male
+// ═══════════════════════════════════════
+if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();}
+
+function speakJP(text){
+  if(S.equipment&&S.equipment.includes('noJp'))return;
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='ja-JP';u.rate=0.82;u.pitch=0.4;u.volume=1;
+    const voices=window.speechSynthesis.getVoices();
+    const jpVoices=voices.filter(v=>v.lang&&v.lang.startsWith('ja'));
+    if(jpVoices.length>0){
+      // Prefer male — look for known male voice names on iOS
+      const male=jpVoices.find(v=>/otoko|hattori|takumi|male/i.test(v.name)&&!/female|woman|kyoko/i.test(v.name));
+      u.voice=male||jpVoices[jpVoices.length-1];
+    }
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
 
 // ═══════════════════════════════════════
 // TOAST
@@ -1457,6 +1698,31 @@ function showToast(jp,rom,msg){
 }
 
 // ═══════════════════════════════════════
+// GLITCH
+// ═══════════════════════════════════════
+let glitching=false;
+function triggerGlitch(jp,intensity){
+  // Only trigger on timer warnings — called from tickTimer only
+  if(glitching)return;glitching=true;
+  const el=document.getElementById('glitchOv');
+  document.getElementById('glitchJp').textContent=jp;
+  let frame=0;
+  function gf(){
+    frame++;
+    if(frame>60){glitching=false;el.style.opacity='0';return;}
+    // Screen flicker with Japanese text
+    el.style.opacity=frame%10<4?String(0.8+Math.random()*0.2):'0';
+    // Subtle horizontal shift — warning effect
+    if(intensity>0.6&&Math.random()>0.7){
+      document.body.style.transform=`translateX(${(Math.random()-0.5)*3*intensity}px)`;
+      setTimeout(()=>{document.body.style.transform='';},40);
+    }
+    requestAnimationFrame(gf);
+  }
+  gf();
+}
+
+// ═══════════════════════════════════════
 // SCREENS
 // ═══════════════════════════════════════
 function showScreen(n){
@@ -1464,85 +1730,51 @@ function showScreen(n){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+n).classList.add('active');
   const nb=document.getElementById('nav-'+n);if(nb)nb.classList.add('active');
+  if(n==='quests')updateIOBtns();
 }
 
 // ═══════════════════════════════════════
 // ONBOARDING
 // ═══════════════════════════════════════
-let obReportDay='';
-function nextOb(n){
-  document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById('ob'+n);if(el)el.classList.add('active');
-}
-function obSetName(){
-  const v=document.getElementById('obName').value.trim();
-  if(!v){showToast('待て','Mate','Enter your name, Hunter.');return}
-  S.hunter.name=v;save();nextOb(3);
-}
+let obDay='',obFeel='';
+function nextOb(n){document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('active'));const el=document.getElementById('ob'+n);if(el)el.classList.add('active');}
+function obSetName(){const v=document.getElementById('obName').value.trim();if(!v){showToast('待て','Mate','Enter your name, Hunter.');return;}S.hunter.name=v;save();nextOb(3);}
 function obSetDob(){
   const v=document.getElementById('obDob').value.trim();
-  if(!v){nextOb(4);return}
-  S.hunter.dob=v;save();nextOb(4);
+  if(v)S.hunter.dob=v;save();nextOb(4);
 }
 function obSetPostcode(){
-  const v=document.getElementById('obPostcode').value.trim();
-  if(v)S.hunter.postcode=v;save();nextOb(5);
+  const v=document.getElementById('obPostcode').value.trim().toUpperCase();
+  const uk=/^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i;
+  if(v&&!uk.test(v)){document.getElementById('postcodeStatus').textContent='⚠ Invalid UK postcode — try again';return;}
+  if(v){S.hunter.postcode=v;document.getElementById('postcodeStatus').textContent='✓ Confirmed';}
+  save();nextOb(5);
 }
-function selectReportDay(el,day){
-  document.querySelectorAll('.ob-day').forEach(d=>d.classList.remove('selected'));
-  el.classList.add('selected');obReportDay=day;
-  document.getElementById('obDayBtn').style.opacity='1';
+function selDay(el,day){document.querySelectorAll('.ob-day').forEach(d=>d.classList.remove('selected'));el.classList.add('selected');obDay=day;document.getElementById('obDayBtn').style.opacity='1';}
+function obSetDay(){if(!obDay){showToast('待て','Mate','Choose a day.');return;}S.hunter.reportDay=obDay;save();nextOb(6);}
+function obSetSleep(){
+  const sleep=document.getElementById('obSleep').value;
+  const wake=document.getElementById('obWake').value;
+  if(sleep)S.hunter.sleepTarget=sleep;
+  if(wake)S.hunter.wakeTarget=wake;
+  save();nextOb(7);
 }
-function obSetReportDay(){
-  if(!obReportDay){showToast('待て','Mate','Choose a day, Hunter.');return}
-  S.hunter.reportDay=obReportDay;save();nextOb(6);
-}
-function obSetPhotos(){save();nextOb(7)}
-let obFeel='';
-function selectFeel(el,feel){
-  document.querySelectorAll('.feel-btn').forEach(b=>b.classList.remove('selected'));
-  el.classList.add('selected');obFeel=feel;
-  document.getElementById('obFeelBtn').style.opacity='1';
-}
-function obFinish(){
-  if(!obFeel){showToast('待て','Mate','Tell the System how you feel.');return}
-  S.hunter.todayFeel=obFeel;S.setup=true;S.startDate=Date.now();
+function obSetPhotos(){save();finishOnboarding();}
+
+function finishOnboarding(){
+  S.setup=true;S.startDate=Date.now();
+  S.equipment=S.equipment||[];
   if(!S.quests||S.quests.length===0)initQuests();
   save();
   document.getElementById('onboard').classList.add('hidden');
-  setTimeout(()=>{document.getElementById('onboard').style.display='none'},700);
-  renderAll();
-  showToast('起きろ','Okiro','Welcome, Hunter '+S.hunter.name+'. Your journey begins now.');
-}
-
-// ═══════════════════════════════════════
-// WEATHER (simulated — real API needs backend)
-// ═══════════════════════════════════════
-function loadWeather(){
-  const conditions=[
-    {icon:'☀️',temp:8,desc:'Clear — Good for outdoor training',right:'Outdoor quest\nrecommended'},
-    {icon:'🌥️',temp:6,desc:'Overcast — No excuse to stay inside',right:'Outdoor quest\nactive'},
-    {icon:'🌧️',temp:5,desc:'Light rain — Train anyway, Hunter',right:'Outdoor quest\nactive'},
-    {icon:'❄️',temp:1,desc:'Cold — Dress appropriately',right:'Outdoor quest\nactive'},
-    {icon:'⛈️',temp:3,desc:'Storm — Indoor training today',right:'Indoor training\nactivated'},
-  ];
-  const c=conditions[Math.floor(Math.random()*3)];
-  document.getElementById('wxIcon').textContent=c.icon;
-  document.getElementById('wxTemp').textContent=c.temp+'°C';
-  document.getElementById('wxDesc').textContent=c.desc;
-  document.getElementById('wxRight').textContent=c.right;
-}
-
-// ═══════════════════════════════════════
-// PARTICLES
-// ═══════════════════════════════════════
-function initParticles(){
-  const c=document.getElementById('particles');const ctx=c.getContext('2d');
-  c.width=window.innerWidth;c.height=window.innerHeight;
-  const pts=Array.from({length:30},()=>({x:Math.random()*c.width,y:Math.random()*c.height,s:Math.random()*1.2+0.3,vy:Math.random()*0.25+0.08,op:Math.random()*0.3+0.08}));
-  function draw(){ctx.clearRect(0,0,c.width,c.height);pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fillStyle=`rgba(110,80,255,${p.op})`;ctx.fill();p.y-=p.vy;if(p.y<0){p.y=c.height;p.x=Math.random()*c.width}});requestAnimationFrame(draw)}
-  draw();
-  window.addEventListener('resize',()=>{c.width=window.innerWidth;c.height=window.innerHeight});
+  setTimeout(()=>{document.getElementById('onboard').style.display='none';},700);
+  renderAll();startMainTimer();updateIOBtns();
+  setTimeout(()=>{
+    speakJP('起きろ');
+    showToast('起きろ','Okiro','Welcome, Hunter '+S.hunter.name+'. Your journey begins now.');
+    // Show morning feeling after brief delay
+    setTimeout(()=>showMorningFeel(),1200);
+  },800);
 }
 
 // ═══════════════════════════════════════
@@ -1560,37 +1792,73 @@ function initRunes(){
 }
 
 // ═══════════════════════════════════════
-// DAILY RESET CHECK
+// DAILY RESET
 // ═══════════════════════════════════════
 function checkDailyReset(){
   const today=new Date().toDateString();
   if(S.lastResetDate!==today){
     S.lastResetDate=today;
-    S.dayStarted=false;S.dayMode=null;S.dayDate='';
-    S.water=0;
-    // Advance week every 7 days
+    // Check missed yesterday
+    if(S.dayStarted&&S.dayDate&&S.dayDate!==today){
+      const allDone=S.quests&&S.quests.every(q=>q.done);
+      if(!allDone&&S.dayMode!=='rest'){
+        S.missedDays=(S.missedDays||0)+1;
+        S.streak=Math.max(0,S.streak-1);
+        S.streakDays=[false,false,false,false,false,false,false];
+        if(S.missedDays>=3){
+          setTimeout(()=>{document.getElementById('lockdown').classList.add('show');speakJP('罰を受けろ');},1500);
+        }
+      }else{S.missedDays=0;}
+    }
+    S.dayStarted=false;S.dayMode=null;S.dayDate='';S.water=0;S.warningsFired=[];
     const daysSinceStart=S.startDate?Math.floor((Date.now()-new Date(S.startDate))/(1000*60*60*24)):0;
     S.week=Math.max(1,Math.ceil((daysSinceStart+1)/7));
-    initQuests();
-    save();
+    const month=new Date().getMonth();
+    if(S.lastMonth!==month){S.exhaustedUsedThisMonth=0;S.lastMonth=month;}
+    initQuests();save();
   }
+  // Reset feeling each day
+  if(S.feelingDate!==today)S.feelingToday=null;
+}
+
+// ═══════════════════════════════════════
+// CHECK INCOMPLETE PROFILE
+// ═══════════════════════════════════════
+function checkProfile(){
+  if(!S.hunter.name){nextOb(2);return false;}
+  if(!S.hunter.dob){nextOb(3);return false;}
+  if(!S.hunter.postcode){nextOb(4);return false;}
+  return true;
 }
 
 // ═══════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════
 window.addEventListener('load',()=>{
-  load();
-  checkDailyReset();
-  initParticles();initRunes();
-  if(!S.setup){
+  load();checkDailyReset();initRunes();
+
+  if(!S.setup||!checkProfile()){
     document.getElementById('onboard').classList.remove('hidden');
+    // Start from correct step if partially done
+    if(S.setup&&S.hunter.name&&!S.hunter.dob)nextOb(3);
+    else if(S.setup&&S.hunter.name&&S.hunter.dob&&!S.hunter.postcode)nextOb(4);
+    return;
+  }
+
+  document.getElementById('onboard').classList.add('hidden');
+  document.getElementById('onboard').style.display='none';
+  if(!S.quests||S.quests.length===0)initQuests();
+  renderAll();startMainTimer();updateIOBtns();
+
+  // Morning feeling check — show every morning
+  const today=new Date().toDateString();
+  if(!S.feelingToday||S.feelingDate!==today){
+    setTimeout(()=>{
+      speakJP('起きろ');
+      showMorningFeel();
+    },600);
   }else{
-    document.getElementById('onboard').classList.add('hidden');
-    document.getElementById('onboard').style.display='none';
-    if(!S.quests||S.quests.length===0)initQuests();
-    renderAll();loadWeather();
-    setTimeout(()=>showToast('起きろ','Okiro','Welcome back, Hunter '+S.hunter.name+'.'),600);
+    setTimeout(()=>{speakJP('起きろ');showToast('起きろ','Okiro','Welcome back, Hunter '+S.hunter.name+'.');},800);
   }
 });
 </script>
